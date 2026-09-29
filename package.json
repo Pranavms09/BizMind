@@ -7,13 +7,16 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test:unit": "tsx tests/business-analyst.test.ts",
+    "test:unit": "tsx tests/business-analyst.test.ts && tsx tests/competitive-calculations.test.ts",
     "test:hindsight": "tsx scripts/test-hindsight.ts",
-    "test:e2e": "tsx scripts/test-backend-flow.ts"
+    "test:e2e": "tsx scripts/test-backend-flow.ts",
+    "test:groq": "tsx scripts/test-groq.ts",
+    "test:competitive": "tsx scripts/test-competitive-flow.ts"
   },
   "dependencies": {
     "@vectorize-io/hindsight-client": "^0.10.1",
     "clsx": "^2.1.1",
+    "groq-sdk": "^1.6.0",
     "lucide-react": "^0.475.0",
     "next": "^15.1.7",
     "papaparse": "^5.4.1",

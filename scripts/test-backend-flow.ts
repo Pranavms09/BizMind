@@ -154,8 +154,28 @@ Key Institutional Lesson: Product A exhibits high price elasticity. A 10% discou
     console.log(`  [Evidence ${idx + 1}]: ${fact.text.substring(0, 100)}...`);
   });
 
-  console.log('\n========================================================');
-  console.log('✓ END-TO-END FLOW VERIFIED: SITUATION -> DECISION -> OUTCOME -> LESSON -> RECALL -> REFLECT');
+  // STEP 7: Synthesize with Groq LLM
+  console.log('\n[Step 7] Calling Groq LLM for Executive Strategic Business Recommendation...');
+  const { generateBusinessAnalystInsight } = await import('../src/lib/groq');
+  const groqOutput = await generateBusinessAnalystInsight({
+    query: userQuery,
+    currentDataContext: `Latest Period: March 2026\nProduct B Revenue: ₹3,78,000 (-8.2%), Units: 180 (-10.0%), Avg Price: ₹2,100`,
+    recalledMemories: recallRes.results.map((m, i) => ({
+      id: m.id || `m-${i}`,
+      text: m.text,
+      type: 'historical_experience',
+      relevanceReason: 'E2E test',
+    })),
+    hindsightReflectSummary: reflectRes.text,
+    detectedProduct: 'Product B',
+  });
+
+  console.log(`✓ Groq LLM (${groqOutput.model}) generated analysis (${groqOutput.reply.length} chars).`);
+  console.log('Sample excerpt:');
+  console.log(groqOutput.reply.substring(0, 300) + '...\n');
+
+  console.log('========================================================');
+  console.log('✓ COMPLETE FLOW VERIFIED: SITUATION -> DECISION -> OUTCOME -> LESSON -> RECALL -> REFLECT -> GROQ LLM');
   console.log('========================================================');
 }
 

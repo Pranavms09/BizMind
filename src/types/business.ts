@@ -4,6 +4,8 @@
  * and tracked outcomes for Hindsight memory integration.
  */
 
+export * from './competitive';
+
 export interface SalesRecord {
   date: string; // YYYY-MM-DD
   product: string;

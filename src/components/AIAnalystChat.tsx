@@ -10,25 +10,30 @@ import {
   Layers,
   Info,
   ChevronRight,
+  Globe,
 } from 'lucide-react';
 import { MemoryEvidenceItem } from '@/types/business';
+import { CompetitiveImpactAnalysis } from '@/types/competitive';
 
 interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   evidence?: MemoryEvidenceItem[];
+  competitiveAnalysis?: CompetitiveImpactAnalysis;
   timestamp: string;
 }
 
 interface AIAnalystChatProps {
   onViewEvidence: (evidence: MemoryEvidenceItem[], title: string) => void;
+  onOpenCompetitiveAnalysis?: (analysis: CompetitiveImpactAnalysis) => void;
   activeProduct?: string;
   externalPrompt?: { prompt: string; product: string } | null;
 }
 
 export function AIAnalystChat({
   onViewEvidence,
+  onOpenCompetitiveAnalysis,
   activeProduct,
   externalPrompt,
 }: AIAnalystChatProps) {
@@ -37,7 +42,7 @@ export function AIAnalystChat({
       id: 'welcome',
       role: 'assistant',
       content:
-        'Hello! I am your Hindsight-powered AI Business Analyst. I remember what your company tried, why it tried it, what happened afterward, and use those institutional experiences when analyzing your future business decisions. Ask me anything about current metrics, past experiments, or strategic recommendations.',
+        'Hello! I am your Hindsight-powered AI Business Analyst. I remember what your company tried, why it tried it, what happened afterward, and use those institutional experiences along with live web competitive intelligence when analyzing your future business decisions. Ask me anything about current metrics, past experiments, or competitive price impact.',
       timestamp: 'Just now',
     },
   ]);
@@ -53,6 +58,10 @@ export function AIAnalystChat({
   }, [externalPrompt]);
 
   const suggestedQuestions = [
+    {
+      label: 'Competitive Impact: -10% on Product B?',
+      query: 'What would happen competitively if we reduce Product B price by 10%?',
+    },
     {
       label: "Should we reduce Product B's price?",
       query: "Should we reduce Product B's price? What did we learn from past pricing experiments?",
@@ -100,6 +109,7 @@ export function AIAnalystChat({
         role: 'assistant',
         content: data.reply,
         evidence: data.evidence || [],
+        competitiveAnalysis: data.competitiveAnalysis || undefined,
         timestamp: 'Just now',
       };
 
@@ -110,7 +120,7 @@ export function AIAnalystChat({
         {
           id: `bot-err-${Date.now()}`,
           role: 'assistant',
-          content: `I encountered an issue retrieving memories: ${err.message}. Historical memory may be momentarily unreachable.`,
+          content: `I encountered an issue retrieving memories: ${err.message}. Historical memory or AI services may be momentarily unreachable.`,
           timestamp: 'Just now',
         },
       ]);
@@ -129,12 +139,12 @@ export function AIAnalystChat({
           </div>
           <div>
             <h3 className="text-sm font-bold text-white">AI Decision Analyst</h3>
-            <p className="text-[11px] text-slate-400">Context + Hindsight Institutional Memory</p>
+            <p className="text-[11px] text-slate-400">Context + Hindsight Memory + Groq LLM</p>
           </div>
         </div>
 
         <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 flex items-center gap-1">
-          <Sparkles className="w-3 h-3" /> Recall & Reflect Active
+          <Sparkles className="w-3 h-3" /> Hindsight + Web Search Active
         </span>
       </div>
 
@@ -153,6 +163,33 @@ export function AIAnalystChat({
               }`}
             >
               <div className="whitespace-pre-wrap">{msg.content}</div>
+
+              {/* Competitive Impact Card Embed */}
+              {msg.role === 'assistant' && msg.competitiveAnalysis && (
+                <div className="mt-3 p-3 rounded-xl bg-cyan-950/40 border border-cyan-800/60 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-1.5 rounded-lg bg-cyan-500/20 text-cyan-300">
+                      <Globe className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="text-xs font-bold text-white block">
+                        Competitive Impact Analysis Ready
+                      </span>
+                      <span className="text-[10px] text-cyan-300">
+                        {msg.competitiveAnalysis.scenarios.length} Response Scenarios Modeled •{' '}
+                        {msg.competitiveAnalysis.competitiveEvidence.length} Competitors Observed
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => onOpenCompetitiveAnalysis?.(msg.competitiveAnalysis!)}
+                    className="px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-[11px] font-semibold flex items-center gap-1 transition-all shrink-0"
+                  >
+                    <span>View Analysis</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
 
               {/* Memory Evidence Pill for AI responses */}
               {msg.role === 'assistant' && msg.evidence && msg.evidence.length > 0 && (
@@ -185,7 +222,7 @@ export function AIAnalystChat({
           <div className="flex items-start">
             <div className="bg-slate-950/80 border border-slate-800 rounded-2xl px-4 py-3 text-xs text-slate-400 flex items-center gap-2">
               <Brain className="w-4 h-4 text-cyan-400 animate-spin" />
-              <span>Querying Hindsight Institutional Memory bank & reflecting...</span>
+              <span>Querying Hindsight Memory, researching competition & reasoning via Groq...</span>
             </div>
           </div>
         )}
@@ -218,7 +255,7 @@ export function AIAnalystChat({
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask about current data, historical decisions, or what to do next..."
+          placeholder="Ask about competitive impact, price changes, or past experiments..."
           disabled={loading}
           className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
         />

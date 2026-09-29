@@ -11,13 +11,15 @@ import { DecisionModal } from '@/components/DecisionModal';
 import { OutcomeModal } from '@/components/OutcomeModal';
 import { MemoryEvidenceModal } from '@/components/MemoryEvidenceModal';
 import { DatasetUploadModal } from '@/components/DatasetUploadModal';
+import { CompetitiveAnalysisModal } from '@/components/CompetitiveAnalysisModal';
 import {
   DatasetKPIs,
   BusinessSituation,
   MemoryEvidenceItem,
   BusinessDecision,
+  CompetitiveImpactAnalysis,
 } from '@/types/business';
-import { Sparkles, Brain, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Sparkles, Brain, CheckCircle2, AlertTriangle, Globe } from 'lucide-react';
 
 export default function DashboardPage() {
   const [kpis, setKpis] = useState<DatasetKPIs | null>(null);
@@ -37,6 +39,11 @@ export default function DashboardPage() {
   const [evidenceQueryTitle, setEvidenceQueryTitle] = useState<string>('');
 
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+
+  // Competitive Analysis modal state
+  const [isCompetitiveModalOpen, setIsCompetitiveModalOpen] = useState(false);
+  const [competitiveData, setCompetitiveData] = useState<CompetitiveImpactAnalysis | null>(null);
+  const [competitiveLoading, setCompetitiveLoading] = useState(false);
 
   // Demo walkthrough stepper state
   const [demoStep, setDemoStep] = useState(1);
@@ -183,6 +190,30 @@ export default function DashboardPage() {
             "Should we reduce Product B's price? What did we learn from our previous pricing experiments?",
           product: 'Product B',
         });
+      } else if (stepNum === 7) {
+        // Step 7: Competitive Impact Analysis on Product B with proposed 10% price cut
+        setDemoStep(7);
+        setActiveProduct('Product B');
+        setIsCompetitiveModalOpen(true);
+        setCompetitiveLoading(true);
+        try {
+          const res = await fetch('/api/competitive-analysis', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              product: 'Product B',
+              proposedPrice: 900,
+            }),
+          });
+          const data = await res.json();
+          if (data.analysis) {
+            setCompetitiveData(data.analysis);
+          }
+        } catch (compErr) {
+          console.error('Step 7 competitive analysis error:', compErr);
+        } finally {
+          setCompetitiveLoading(false);
+        }
       }
     } catch (err) {
       console.error('Demo step failed:', err);
@@ -246,6 +277,10 @@ export default function DashboardPage() {
                 setEvidenceQueryTitle(title);
                 setIsEvidenceModalOpen(true);
               }}
+              onOpenCompetitiveAnalysis={(analysis) => {
+                setCompetitiveData(analysis);
+                setIsCompetitiveModalOpen(true);
+              }}
             />
           </div>
         </div>
@@ -294,6 +329,14 @@ export default function DashboardPage() {
           }
           setRefreshTimeline((prev) => prev + 1);
         }}
+      />
+
+      {/* Competitive Impact Analysis Modal */}
+      <CompetitiveAnalysisModal
+        isOpen={isCompetitiveModalOpen}
+        onClose={() => setIsCompetitiveModalOpen(false)}
+        analysis={competitiveData}
+        loading={competitiveLoading}
       />
     </div>
   );

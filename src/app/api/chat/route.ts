@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { recallMemories, reflectOnMemories } from '@/lib/hindsight';
-import { getAllDatasets, getStoredDecisions, getStoredOutcomes } from '@/lib/db';
+import { generateBusinessAnalystInsight } from '@/lib/groq';
+import { getAllDatasets } from '@/lib/db';
 import { MemoryEvidenceItem } from '@/types/business';
 
 export const dynamic = 'force-dynamic';
@@ -14,7 +15,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Query string is required.' }, { status: 400 });
     }
 
-    // 1. Gather current deterministic dataset context
+    // 1. Gather current deterministic dataset context (computed by deterministic math engine)
     const allDatasets = getAllDatasets();
     const datasetLabels = Object.keys(allDatasets);
     const latestDataset = datasetLabels.length > 0 ? allDatasets[datasetLabels[datasetLabels.length - 1]] : null;
@@ -48,14 +49,13 @@ ${Object.entries(kpis.productKPIs)
       }
     }
 
-    // 2. Perform Hindsight Recall for historical business experiences
+    // 2. Perform Hindsight Recall & Reflect for historical business experiences
     let recalledEvidence: MemoryEvidenceItem[] = [];
-    let reflectReply = '';
+    let hindsightReflectSummary = '';
     let hindsightAvailable = true;
     let hindsightNotice: string | null = null;
 
     try {
-      // Recall query targeted with business context
       const recallQuery = detectedProduct
         ? `${query} - pricing, sales, strategy, decisions, and outcomes for ${detectedProduct} or similar products`
         : `${query} - business decisions, price changes, revenue impacts, and outcomes`;
@@ -65,7 +65,6 @@ ${Object.entries(kpis.productKPIs)
         preferObservations: true,
       });
 
-      // Map recalled memories to evidence
       recalledEvidence = (recallResponse.results || []).map((m, idx) => ({
         id: m.id || `rec-${idx}`,
         text: m.text,
@@ -74,7 +73,7 @@ ${Object.entries(kpis.productKPIs)
         relevanceReason: `Recalled as relevant historical context for '${query}'.`,
       }));
 
-      // 3. Perform Hindsight Reflect combining Current Business Situation + Memory
+      // Reflect over accumulated memories
       const reflectPrompt = `CURRENT BUSINESS SITUATION (Deterministic verified data):
 ${currentDataContext}
 
@@ -84,18 +83,16 @@ USER QUESTION:
 INSTRUCTIONS:
 You are an institutional memory business decision intelligence agent.
 1. Distinguish between CURRENT DATA and HISTORICAL EXPERIENCES.
-2. If relevant historical decisions or outcomes exist in memory, explicitly cite what was tried, why, what happened, and what lesson was learned.
-3. Compare the current situation with past experiments. Do NOT recommend blindly copying past actions if conditions differ.
-4. If no historical memory exists, base your answer only on current data and state clearly that no past precedent exists.`;
+2. If relevant historical decisions or outcomes exist in memory, cite what was tried, why, what happened, and what lesson was learned.
+3. Compare the current situation with past experiments.`;
 
       const reflectRes = await reflectOnMemories(query, {
         context: reflectPrompt,
         includeFacts: true,
       });
 
-      reflectReply = reflectRes.text;
+      hindsightReflectSummary = reflectRes.text;
 
-      // If reflect returned specific facts used, prioritize and merge them into evidence
       if (reflectRes.basedOnMemories && reflectRes.basedOnMemories.length > 0) {
         const reflectMemories: MemoryEvidenceItem[] = reflectRes.basedOnMemories.map((m, i) => ({
           id: m.id || `ref-${i}`,
@@ -105,7 +102,6 @@ You are an institutional memory business decision intelligence agent.
           relevanceReason: 'Directly cited by Hindsight reflect reasoning engine.',
         }));
 
-        // Combine unique memories
         const seenTexts = new Set<string>();
         const combined: MemoryEvidenceItem[] = [];
 
@@ -122,17 +118,87 @@ You are an institutional memory business decision intelligence agent.
       console.warn('[Chat API] Hindsight service call notice:', hindsightError.message);
       hindsightAvailable = false;
       hindsightNotice = 'Historical memory is temporarily unavailable.';
-      reflectReply = `Historical memory is temporarily unavailable.\n\nBased strictly on the current deterministic data:\n${currentDataContext}`;
+      hindsightReflectSummary = '';
+    }
+
+    // 3. Synthesize via Groq LLM (combining verified deterministic metrics + Hindsight memories)
+    let finalReply = '';
+    let groqModelUsed = '';
+    let groqAvailable = true;
+
+    try {
+      const groqResult = await generateBusinessAnalystInsight({
+        query,
+        currentDataContext,
+        recalledMemories: recalledEvidence,
+        hindsightReflectSummary,
+        detectedProduct,
+      });
+
+      finalReply = groqResult.reply;
+      groqModelUsed = groqResult.model;
+    } catch (groqError: any) {
+      console.error('[Chat API] Groq service error:', groqError.message);
+      groqAvailable = false;
+
+      // Clean user-facing error degradation without fabricating fake AI responses
+      if (!hindsightAvailable) {
+        finalReply = `⚠️ Analysis Services Unavailable: Both the Groq LLM and Hindsight memory service are currently unreachable (${groqError.message}).\n\nVerified Current Data:\n${currentDataContext}`;
+      } else {
+        finalReply = `⚠️ LLM Generation Notice: Groq LLM could not complete generation (${groqError.message}).\n\nDirect Hindsight Memory Reflection:\n${hindsightReflectSummary || 'No memory reflection generated.'}`;
+      }
+    }
+
+    // 4. If query requests competitive impact analysis, run competitive analysis
+    let competitiveAnalysis: any = null;
+    const lowerQ = query.toLowerCase();
+    const isCompetitiveQuery =
+      lowerQ.includes('competiti') ||
+      lowerQ.includes('competitor') ||
+      (lowerQ.includes('reduce') && lowerQ.includes('price')) ||
+      lowerQ.includes('improve our competitive');
+
+    if (isCompetitiveQuery) {
+      try {
+        const prod = detectedProduct || 'Product B';
+        const internalCurrentPrice = latestDataset?.kpis.productKPIs[prod]?.avgPrice || 1000;
+        
+        // Extract percentage or target price from query
+        let proposed = Math.round(internalCurrentPrice * 0.9);
+        const toPriceMatch = query.match(/(?:to|at)\s*(?:₹|rs\.?|inr)?\s*([0-9,]+)/i);
+        const pctMatch = query.match(/([0-9]+(?:\.[0-9]+)?)\s*%/);
+        if (toPriceMatch) {
+          const p = parseFloat(toPriceMatch[1].replace(/,/g, ''));
+          if (!isNaN(p) && p > 0) proposed = p;
+        } else if (pctMatch) {
+          const pct = parseFloat(pctMatch[1]);
+          if (!isNaN(pct)) proposed = Math.round(internalCurrentPrice * (1 - pct / 100));
+        }
+
+        const { runCompetitiveAnalysis } = await import('@/lib/competitive-service');
+        const compResult = await runCompetitiveAnalysis({
+          product: prod,
+          currentPrice: internalCurrentPrice,
+          proposedPrice: proposed,
+          userQuery: query,
+        });
+        competitiveAnalysis = compResult.analysis;
+      } catch (cErr: any) {
+        console.warn('[Chat API] Competitive analysis sub-call error:', cErr.message);
+      }
     }
 
     return NextResponse.json({
-      reply: reflectReply,
+      reply: finalReply,
       evidence: recalledEvidence,
       evidenceCount: recalledEvidence.length,
       hindsightAvailable,
       hindsightNotice,
+      groqAvailable,
+      groqModel: groqModelUsed,
       deterministicContext: currentDataContext,
       detectedProduct,
+      competitiveAnalysis,
     });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });

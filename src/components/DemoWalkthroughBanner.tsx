@@ -9,6 +9,7 @@ import {
   CheckCircle,
   HelpCircle,
   Sparkles,
+  Globe,
 } from 'lucide-react';
 
 interface DemoWalkthroughBannerProps {
@@ -59,6 +60,12 @@ export function DemoWalkthroughBanner({
       subtitle: 'Recall memories & reflect with evidence',
       icon: Play,
     },
+    {
+      num: 7,
+      title: 'Competitive Impact',
+      subtitle: 'Web research & 3 response scenarios',
+      icon: Globe,
+    },
   ];
 
   return (
@@ -85,13 +92,13 @@ export function DemoWalkthroughBanner({
         <div className="flex items-center gap-2">
           <span className="text-xs text-slate-400">Current Phase:</span>
           <span className="px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 text-xs font-semibold">
-            Step {currentStep} of 6
+            Step {currentStep} of 7
           </span>
         </div>
       </div>
 
       {/* Stepper buttons grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2">
         {steps.map((step) => {
           const Icon = step.icon;
           const isActive = currentStep === step.num;
