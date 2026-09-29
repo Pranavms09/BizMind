@@ -52,15 +52,15 @@ export function Header({ onOpenUpload, onResetDemo }: HeaderProps) {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                <span>{DEMO_COMPANY.name}</span>
-                <span className="text-slate-400 font-normal text-base">| AI Business Analyst</span>
+                <span>BizMind</span>
+                <span className="text-slate-400 font-normal text-base">| AI Decision Intelligence</span>
               </h1>
               <span className="text-[11px] font-semibold tracking-wide uppercase px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center gap-1">
                 <Sparkles className="w-3 h-3" /> Hindsight Powered
               </span>
             </div>
             <p className="text-xs text-slate-400 hidden sm:block">
-              {DEMO_COMPANY.industry} &bull; {DEMO_COMPANY.primaryCategory} ({DEMO_COMPANY.market}) &bull; Institutional Memory: What was tried, why, and what happened.
+              Operating on {DEMO_COMPANY.fullName} &bull; {DEMO_COMPANY.primaryCategory} ({DEMO_COMPANY.market}) &bull; Institutional Memory Engine
             </p>
           </div>
         </div>

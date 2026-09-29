@@ -6,6 +6,21 @@
  * are researched from the live web for competitive intelligence.
  */
 
+export interface AppConfig {
+  name: string;
+  fullName: string;
+  tagline: string;
+  description: string;
+}
+
+export const APP_CONFIG: AppConfig = {
+  name: 'BizMind',
+  fullName: 'BizMind Decision Intelligence',
+  tagline: 'Hindsight-Powered Decision Intelligence',
+  description:
+    'An institutional memory decision intelligence platform that remembers what your company tried, why it tried it, what happened afterward, and uses those experiences when analyzing future decisions.',
+};
+
 export interface ProductConfig {
   id: string;
   name: string;

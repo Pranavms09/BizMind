@@ -342,11 +342,11 @@ export const DecisionsView: React.FC<DecisionsViewProps> = ({
                 </div>
 
                 {/* Expected Outcome */}
-                <div className="pt-2 border-t border-white/5 flex items-center justify-between text-xs">
-                  <div className="flex items-center space-x-2 text-neutral-400">
-                    <Target className="w-3.5 h-3.5 text-neutral-500" />
-                    <span>Target Outcome:</span>
-                    <span className="text-neutral-200">{dec.expectedOutcome}</span>
+                <div className="pt-2 border-t border-white/5 flex flex-wrap items-center justify-between gap-2 text-xs">
+                  <div className="flex items-center space-x-2 text-neutral-400 min-w-0">
+                    <Target className="w-3.5 h-3.5 text-neutral-500 shrink-0" />
+                    <span className="shrink-0">Target Outcome:</span>
+                    <span className="text-neutral-200 truncate">{dec.expectedOutcome}</span>
                   </div>
 
                   {dec.outcome && (

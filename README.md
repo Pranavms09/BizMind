@@ -1,6 +1,6 @@
-# 🎧 GOAT AI Business Analyst — Hindsight-Powered Decision Intelligence
+# 🧠 BizMind — Hindsight-Powered AI Decision Intelligence Platform
 
-> **"An AI business analyst that remembers what the company tried, why it tried it, what happened afterward, and uses those experiences when analyzing future business decisions."**
+> **"An institutional memory decision intelligence platform that remembers what the company tried, why it tried it, what happened afterward, and uses those experiences when analyzing future business decisions."**
 
 Built for the **HackWithHyderabad** Hackathon. Powered by **Hindsight Cloud** persistent memory and **Groq** high-speed LLM & live browser search.
 
@@ -10,7 +10,7 @@ Built for the **HackWithHyderabad** Hackathon. Powered by **Hindsight Cloud** pe
 
 In most modern enterprises, business intelligence tools describe *what is happening*, but they have total amnesia about *what was already tried and what happened afterward*. When team members change or quarters pass, companies repeat identical strategic mistakes because their institutional memory is lost in disconnected slide decks or Slack threads.
 
-**GOAT AI Business Analyst** solves this by establishing a permanent, self-improving **Institutional Decision Intelligence Loop**:
+**BizMind** solves this by establishing a permanent, self-improving **Institutional Decision Intelligence Loop**:
 
 ```
 Business Data ──► Deterministic Analysis ──► Strategic Decision ──► Observed Outcome
@@ -21,9 +21,10 @@ Future Decision ◄── Experience Retrieval & Reflection ◄── Hindsight 
 
 ---
 
-## 🏢 Demo Company: GOAT Consumer Electronics
+## 🏢 Demo Workspace: GOAT Consumer Electronics
 
-For our demonstration, we model a fictional Indian consumer-electronics brand: **GOAT** (`GOAT Consumer Electronics India`).
+To demonstrate BizMind in a realistic enterprise setting, the platform is pre-configured to operate on a fictional Indian consumer-electronics company: **GOAT** (`GOAT Consumer Electronics India`).
+- **Operating Brand**: GOAT
 - **Industry**: Consumer Electronics
 - **Primary Category**: Headphones & Audio
 - **Market**: India (Currency: INR / `₹`)
@@ -33,7 +34,10 @@ For our demonstration, we model a fictional Indian consumer-electronics brand: *
   - `GOAT Nirvana 751` (Premium Active Noise-Cancelling Headphones, Baseline: ₹3,499)
   - `GOAT Stone 350` (Portable Bluetooth Speaker, Baseline: ₹1,499)
 
-> **Important**: GOAT is our fictional demo company. Real Indian market competitors (**boAt**, **Noise**, **Boult**, **JBL**, **Sony**) are researched dynamically from live public web sources for competitive intelligence.
+> **Important Architecture Distinction**:
+> - **BizMind** is the application platform and AI decision intelligence system.
+> - **GOAT** is the enterprise company operated and analyzed inside BizMind.
+> - Real Indian market competitors (**boAt**, **Noise**, **Boult**, **JBL**, **Sony**) are researched dynamically from live public web sources for competitive intelligence.
 
 ---
 
@@ -110,7 +114,7 @@ Allows users to ask complex strategic questions like:
 
 ## 🎭 The 7-Step Hackathon Demo Story
 
-The app includes an **Interactive Hackathon Demo Journey** banner allowing judges to step through the entire institutional loop in one click:
+BizMind includes an **Interactive Hackathon Demo Journey** banner allowing judges to step through the entire institutional loop in one click:
 
 | Step | Action | Business Narrative & Technical Mechanism |
 |---|---|---|

@@ -63,8 +63,8 @@ export async function generateBusinessAnalystInsight({
           .join('\n')
       : 'No prior historical decisions or precedents found in Hindsight bank for this query.';
 
-  const systemPrompt = `You are the Lead AI Business Decision Analyst for ${DEMO_COMPANY.fullName} ("${DEMO_COMPANY.name}").
-${DEMO_COMPANY.name} is a fictional consumer-electronics company in India specializing in ${DEMO_COMPANY.primaryCategory} (e.g., GOAT Rockerz 550, GOAT Airdopes 141, GOAT Nirvana 751, GOAT Stone 350).
+  const systemPrompt = `You are BizMind, the Lead AI Business Decision Analyst operating for ${DEMO_COMPANY.fullName} ("${DEMO_COMPANY.name}").
+${DEMO_COMPANY.name} is our demo consumer-electronics company in India specializing in ${DEMO_COMPANY.primaryCategory} (e.g., GOAT Rockerz 550, GOAT Airdopes 141, GOAT Nirvana 751, GOAT Stone 350).
 You possess institutional memory powered by Hindsight and deliver strategic decision intelligence.
 
 CORE OPERATIONAL PRINCIPLES:
@@ -205,10 +205,10 @@ Position: ${s.pricePosition}`
     )
     .join('\n\n');
 
-  const systemPrompt = `You are a Senior Corporate Strategy & Competitive Intelligence Analyst for ${DEMO_COMPANY.fullName} ("${DEMO_COMPANY.name}").
-GOAT is our fictional consumer-electronics company in India specializing in ${DEMO_COMPANY.primaryCategory}.
+  const systemPrompt = `You are BizMind, the Senior Corporate Strategy & Competitive Decision Intelligence platform operating for ${DEMO_COMPANY.fullName} ("${DEMO_COMPANY.name}").
+${DEMO_COMPANY.name} is our demo consumer-electronics company in India specializing in ${DEMO_COMPANY.primaryCategory}.
 Real competitors in India's consumer audio market include boAt, Noise, Boult, JBL, Sony, and Realme.
-You deliver auditable, rigorous competitive impact assessments combining GOAT's internal business data, Hindsight memory, live web competitive research, and deterministic scenario models.
+You deliver auditable, rigorous competitive impact assessments combining ${DEMO_COMPANY.name}'s internal business data, Hindsight memory, live web competitive research, and deterministic scenario models.
 
 MANDATORY EPISTEMIC PRINCIPLES:
 1. NEVER declare what competitors WILL do. Always frame future actions as: "Scenario: If competitors respond by..."

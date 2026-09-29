@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'AI Business Analyst — Hindsight-Powered Decision Intelligence',
+  title: 'BizMind — AI Decision Intelligence & Institutional Memory',
   description:
-    'An institutional memory business analyst that remembers what your company tried, why it tried it, what happened afterward, and uses those experiences when analyzing future decisions.',
+    'BizMind is an institutional memory decision intelligence platform that remembers what your company tried, why it tried it, what happened afterward, and uses those experiences when analyzing future decisions.',
 };
 
 export default function RootLayout({

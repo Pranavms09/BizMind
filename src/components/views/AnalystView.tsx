@@ -225,7 +225,7 @@ export const AnalystView: React.FC<AnalystViewProps> = ({
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Column: Input Panel & History */}
-        <div className="lg:col-span-5 space-y-6">
+        <div className="lg:col-span-5 min-w-0 space-y-6">
           {/* Main Area: Analysis Input Panel */}
           <div className="rounded-3xl border border-white/10 bg-[#121214] p-6 shadow-xl space-y-5">
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
@@ -391,7 +391,7 @@ export const AnalystView: React.FC<AnalystViewProps> = ({
         </div>
 
         {/* Right Column: Loading State & Analysis Result */}
-        <div ref={resultContainerRef} className="lg:col-span-7 space-y-6">
+        <div ref={resultContainerRef} className="lg:col-span-7 min-w-0 space-y-6">
           {/* Loading State Animation */}
           {loading && (
             <div className="rounded-3xl border border-white/20 bg-neutral-900/60 p-8 text-center space-y-4 shadow-xl animate-fade-in">
@@ -438,7 +438,7 @@ export const AnalystView: React.FC<AnalystViewProps> = ({
                     </span>
                     <span className="nothing-tag">INTERPRETATION</span>
                   </div>
-                  <p className="text-xs sm:text-sm text-neutral-200 leading-relaxed font-sans whitespace-pre-line">
+                  <p className="text-xs sm:text-sm text-neutral-200 leading-relaxed font-sans whitespace-pre-line break-words">
                     {activeAnalysisResult.interpretation || activeAnalysisResult.summary}
                   </p>
                 </div>

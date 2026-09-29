@@ -38,6 +38,19 @@ function AppContent() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
   const [mobileOpen, setMobileOpen] = useState<boolean>(false);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab');
+      if (tabParam) {
+        setActiveTab(tabParam);
+      }
+      if (params.get('landing') === 'true') {
+        setShowLanding(true);
+      }
+    }
+  }, []);
+
   // Modals state
   const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -184,7 +197,7 @@ function AppContent() {
       await datasetsApi.loadDemoDataset('january');
       setDemoStep(1);
       setActiveTab('dashboard');
-      showToast('GOAT environment reset to Step 1 baseline.', 'success');
+      showToast('BizMind demo environment reset to GOAT Step 1 baseline.', 'success');
     } catch {
       showToast('Failed to reset demo', 'error');
     }
@@ -231,7 +244,7 @@ function AppContent() {
   }, []);
 
   return (
-    <div className="flex h-screen bg-[#000000] text-white overflow-hidden font-sans selection:bg-pink-500 selection:text-white">
+    <div className="flex h-screen w-full bg-[#000000] text-white overflow-hidden font-sans selection:bg-pink-500 selection:text-white">
       {/* Nothing OS Collapsible Sidebar */}
       <Sidebar
         activeTab={activeTab}
@@ -249,7 +262,7 @@ function AppContent() {
       />
 
       {/* Main Content Pane */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden relative">
         {/* Top Navbar */}
         <TopNav
           activeTab={showLanding ? 'landing' : activeTab}
@@ -265,7 +278,7 @@ function AppContent() {
         />
 
         {/* Scrollable View Area */}
-        <div className="flex-1 overflow-y-auto nothing-dots relative z-10 p-4 sm:p-6 lg:p-8">
+        <main className={`flex-1 overflow-y-auto overflow-x-hidden nothing-dots relative z-10 ${showLanding ? 'p-0' : 'p-4 sm:p-6 lg:p-8'}`}>
           {showLanding ? (
             <LandingView
               onEnterDashboard={(targetTab = 'dashboard') => {
@@ -274,7 +287,7 @@ function AppContent() {
               }}
             />
           ) : (
-            <div className="max-w-7xl mx-auto space-y-6">
+            <div className="max-w-7xl mx-auto space-y-6 w-full min-w-0">
               {/* Demo Stepper for Hackathon Evaluation */}
               <DemoWalkthroughBanner
                 currentStep={demoStep}
@@ -319,7 +332,7 @@ function AppContent() {
               {activeTab === 'timeline' && <TimelineView />}
             </div>
           )}
-        </div>
+        </main>
       </div>
 
       {/* GLOBAL MODALS */}

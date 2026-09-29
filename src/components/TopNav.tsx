@@ -83,7 +83,7 @@ export const TopNav: React.FC<TopNavProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 md:px-6 bg-black/90 backdrop-blur-md border-b border-white/10">
+    <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 md:px-6 bg-black/90 backdrop-blur-md border-b border-white/10 shrink-0 w-full">
       {/* Left: Mobile trigger & Page title */}
       <div className="flex items-center space-x-3">
         <button
@@ -99,7 +99,7 @@ export const TopNav: React.FC<TopNavProps> = ({
             {getPageTitle()}
           </h1>
           <span className="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-white/5 text-neutral-300 border border-white/10">
-            {GOAT_COMPANY.name} Audio
+            BizMind &bull; Operating: {GOAT_COMPANY.name} Audio
           </span>
         </div>
       </div>

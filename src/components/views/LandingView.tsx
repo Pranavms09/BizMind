@@ -97,13 +97,16 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnterDashboard }) =>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-lg bg-white text-black flex items-center justify-center font-bold text-sm tracking-wider shadow-sm">
-              G
+            <div className="w-8 h-8 rounded-lg bg-white text-black flex items-center justify-center font-bold text-sm tracking-wider shadow-sm font-mono">
+              B
             </div>
             <div className="flex items-center space-x-2">
-              <span className="font-semibold text-base tracking-tight text-white">{GOAT_COMPANY.name}</span>
-              <span className="text-[10px] uppercase px-2 py-0.5 rounded bg-white/10 text-neutral-300">
-                HINDSIGHT AI
+              <span className="font-semibold text-base tracking-tight text-white font-mono">BizMind</span>
+              <span className="text-[10px] uppercase px-2 py-0.5 rounded bg-white/10 text-neutral-300 font-mono">
+                AI OS
+              </span>
+              <span className="hidden sm:inline-flex text-[10px] uppercase px-2 py-0.5 rounded bg-white/5 text-neutral-400 border border-white/10 font-mono">
+                Demo: {GOAT_COMPANY.name} Audio
               </span>
             </div>
           </div>
@@ -163,7 +166,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnterDashboard }) =>
             {/* Small badge */}
             <div className="pointer-events-auto inline-flex items-center space-x-2 px-3 py-1 rounded-full border border-white/20 bg-white/5 text-neutral-200 text-xs font-medium tracking-wide mb-6 backdrop-blur-md">
               <Sparkles className="w-3 h-3 text-pink-400" />
-              <span>AI Business Decision Intelligence</span>
+              <span>BizMind &bull; AI Decision Intelligence</span>
             </div>
 
             {/* Large heading */}
@@ -176,7 +179,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnterDashboard }) =>
 
             {/* Description */}
             <p className="pointer-events-auto text-xs sm:text-sm md:text-base text-neutral-300 max-w-2xl mx-auto mb-8 leading-relaxed font-sans font-normal">
-              An AI business analyst that remembers what the company tried, why it tried it, what happened afterward, and applies those experiences when analyzing future decisions.
+              BizMind is an institutional memory decision intelligence platform that remembers what the company tried, why it tried it, what happened afterward, and applies those experiences when analyzing future decisions.
             </p>
 
             {/* Action Buttons */}
@@ -368,7 +371,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnterDashboard }) =>
           </div>
 
           <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-white mb-6">
-            Start analyzing {GOAT_COMPANY.name} Audio
+            Start analyzing {GOAT_COMPANY.name} Audio with BizMind
           </h2>
 
           <p className="text-xs sm:text-sm text-neutral-400 max-w-xl mx-auto mb-10 leading-relaxed font-sans">
@@ -389,9 +392,9 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnterDashboard }) =>
       <footer className="border-t border-white/10 py-10 bg-[#050507] text-xs text-neutral-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center space-x-2">
-            <span className="font-bold text-white tracking-wider">HINDSIGHT</span>
+            <span className="font-bold text-white tracking-wider font-mono">BIZMIND</span>
             <span>//</span>
-            <span>GOAT DECISION INTELLIGENCE AGENT</span>
+            <span>AI DECISION INTELLIGENCE PLATFORM (DEMO: {GOAT_COMPANY.name})</span>
           </div>
           <div>
             <span>HackWithHyderabad Hackathon Project</span>

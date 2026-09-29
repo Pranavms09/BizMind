@@ -177,7 +177,7 @@ export const LearningView: React.FC = () => {
           {loopSteps.map((step, idx) => {
             const Icon = step.icon;
             return (
-              <div key={step.name} className="relative flex flex-col items-center">
+              <div key={step.name} className="relative flex flex-col items-center min-w-0">
                 <div className="w-full p-4 rounded-xl border border-white/10 bg-neutral-900/60 hover:border-white/30 hover:bg-neutral-900 transition-all flex flex-col justify-between space-y-2 group">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-mono text-neutral-500">0{idx + 1}</span>

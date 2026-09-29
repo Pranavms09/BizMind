@@ -96,7 +96,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ isOpen, onClose, o
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search GOAT products, decisions, memories, telemetry..."
+            placeholder="Search BizMind (GOAT products, decisions, memories, telemetry)..."
             className="w-full bg-transparent text-sm md:text-base outline-none text-white placeholder:text-neutral-500 font-mono"
           />
           {query && (
@@ -237,7 +237,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({ isOpen, onClose, o
         {/* Footer shortcuts */}
         <div className="px-4 py-2.5 bg-neutral-900/60 border-t border-white/10 flex items-center justify-between text-xs text-neutral-400 font-mono">
           <span>Navigation: <kbd className="px-1.5 py-0.5 bg-white/5 rounded">↑</kbd> <kbd className="px-1.5 py-0.5 bg-white/5 rounded">↓</kbd></span>
-          <span>GOAT Business Intelligence</span>
+          <span>BizMind Intelligence &bull; Operating on GOAT Audio</span>
         </div>
       </div>
     </div>

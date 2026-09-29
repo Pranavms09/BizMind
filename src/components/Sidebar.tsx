@@ -72,7 +72,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Main Sidebar Element */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-40 flex flex-col bg-[#09090b] border-r border-white/10 transition-all duration-300 ${
+        className={`fixed lg:static inset-y-0 left-0 z-50 lg:z-auto flex flex-col shrink-0 h-full bg-[#09090b] border-r border-white/10 transition-all duration-300 ${
           collapsed ? 'w-20' : 'w-64'
         } ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
       >
@@ -82,19 +82,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onClick={() => onSelectTab('dashboard')}
             className="flex items-center space-x-3 overflow-hidden group focus:outline-none text-left"
           >
-            <div className="w-8 h-8 rounded-lg bg-white text-black flex items-center justify-center shrink-0 font-bold text-sm tracking-wider shadow-sm group-hover:scale-105 transition-transform">
-              G
+            <div className="w-8 h-8 rounded-lg bg-white text-black flex items-center justify-center shrink-0 font-bold text-sm tracking-wider shadow-sm group-hover:scale-105 transition-transform font-mono">
+              B
             </div>
             {!collapsed && (
               <div className="flex flex-col min-w-0">
                 <span className="font-semibold text-sm tracking-tight text-white flex items-center gap-1.5 font-mono">
-                  {GOAT_COMPANY.name}
+                  BizMind
                   <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-white/10 text-neutral-300 font-normal">
                     AI
                   </span>
                 </span>
-                <span className="text-[10px] text-neutral-400 font-mono tracking-wider">
-                  HINDSIGHT AGENT
+                <span className="text-[10px] text-neutral-400 font-mono tracking-wider truncate" title={`Operating: ${GOAT_COMPANY.name} Audio`}>
+                  Operating: {GOAT_COMPANY.name}
                 </span>
               </div>
             )}

@@ -322,53 +322,55 @@ export const CompetitiveView: React.FC<CompetitiveViewProps> = ({ onOpenDecision
           {/* TAB 2: Observed Competitor Pricing Table */}
           {activeTab === 'competitors' && (
             <div className="bg-neutral-900 border border-white/10 rounded-3xl overflow-hidden">
-              <table className="w-full text-left text-xs font-mono">
-                <thead>
-                  <tr className="border-b border-white/10 text-neutral-400 bg-neutral-950/60">
-                    <th className="py-3 px-4 font-semibold uppercase">Competitor</th>
-                    <th className="py-3 px-4 font-semibold uppercase">Observed Price</th>
-                    <th className="py-3 px-4 font-semibold uppercase">Price Gap vs Proposed</th>
-                    <th className="py-3 px-4 font-semibold uppercase">Evidence Source</th>
-                    <th className="py-3 px-4 font-semibold uppercase">Checked At</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {analysis.competitiveEvidence.map((ev, idx) => {
-                    const compPrice = ev.numericPrice || 0;
-                    const diff = analysis.proposedChange.proposedPrice - compPrice;
-                    return (
-                      <tr key={idx} className="hover:bg-white/5 transition-colors">
-                        <td className="py-3.5 px-4 font-medium text-white">{ev.competitor}</td>
-                        <td className="py-3.5 px-4 font-bold text-white">
-                          {ev.value || (compPrice > 0 ? formatINR(compPrice) : 'N/A')}
-                        </td>
-                        <td className="py-3.5 px-4">
-                          {compPrice > 0 ? (
-                            <span className={`font-semibold ${diff < 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                              {diff < 0 ? 'Cheaper by ' : 'Higher by '}
-                              {formatINR(Math.abs(diff))}
-                            </span>
-                          ) : (
-                            <span className="text-neutral-500">Tier match</span>
-                          )}
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <a
-                            href={ev.sourceUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-white hover:text-neutral-300 flex items-center gap-1 underline"
-                          >
-                            <span>{ev.sourceTitle || ev.sourceDomain || 'Public Source'}</span>
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-                        </td>
-                        <td className="py-3.5 px-4 text-neutral-400 text-[11px]">{ev.checkedAt}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs font-mono">
+                  <thead>
+                    <tr className="border-b border-white/10 text-neutral-400 bg-neutral-950/60">
+                      <th className="py-3 px-4 font-semibold uppercase">Competitor</th>
+                      <th className="py-3 px-4 font-semibold uppercase">Observed Price</th>
+                      <th className="py-3 px-4 font-semibold uppercase">Price Gap vs Proposed</th>
+                      <th className="py-3 px-4 font-semibold uppercase">Evidence Source</th>
+                      <th className="py-3 px-4 font-semibold uppercase">Checked At</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {analysis.competitiveEvidence.map((ev, idx) => {
+                      const compPrice = ev.numericPrice || 0;
+                      const diff = analysis.proposedChange.proposedPrice - compPrice;
+                      return (
+                        <tr key={idx} className="hover:bg-white/5 transition-colors">
+                          <td className="py-3.5 px-4 font-medium text-white">{ev.competitor}</td>
+                          <td className="py-3.5 px-4 font-bold text-white">
+                            {ev.value || (compPrice > 0 ? formatINR(compPrice) : 'N/A')}
+                          </td>
+                          <td className="py-3.5 px-4">
+                            {compPrice > 0 ? (
+                              <span className={`font-semibold ${diff < 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                {diff < 0 ? 'Cheaper by ' : 'Higher by '}
+                                {formatINR(Math.abs(diff))}
+                              </span>
+                            ) : (
+                              <span className="text-neutral-500">Tier match</span>
+                            )}
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <a
+                              href={ev.sourceUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-white hover:text-neutral-300 flex items-center gap-1 underline"
+                            >
+                              <span>{ev.sourceTitle || ev.sourceDomain || 'Public Source'}</span>
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          </td>
+                          <td className="py-3.5 px-4 text-neutral-400 text-[11px]">{ev.checkedAt}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 

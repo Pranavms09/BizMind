@@ -90,7 +90,7 @@ export function DemoWalkthroughBanner({
       </div>
 
       {/* Stepper buttons grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 xl:grid-cols-7 gap-2">
         {steps.map((step) => {
           const Icon = step.icon;
           const isActive = currentStep === step.num;
@@ -101,7 +101,7 @@ export function DemoWalkthroughBanner({
               key={step.num}
               disabled={loading}
               onClick={() => onExecuteStep(step.num)}
-              className={`text-left p-3 rounded-2xl border transition-all flex flex-col justify-between ${
+              className={`text-left p-3 rounded-2xl border transition-all flex flex-col justify-between min-w-0 ${
                 isActive
                   ? 'bg-white text-black border-white shadow-lg ring-1 ring-white'
                   : isDone

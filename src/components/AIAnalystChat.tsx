@@ -42,7 +42,7 @@ export function AIAnalystChat({
       id: 'welcome',
       role: 'assistant',
       content:
-        'Hello! I am GOAT’s Hindsight-powered AI Business Analyst. I remember what GOAT tried, why it tried it, what happened afterward, and use those institutional experiences along with live web competitive intelligence when analyzing your future business decisions. Ask me anything about GOAT’s sales data, past pricing outcomes, or competitive price impact.',
+        'Hello! I am BizMind’s Hindsight-powered AI Business Analyst. I operate on GOAT’s enterprise data and live market intelligence to evaluate past pricing outcomes, competitor moves, and future business decisions. Ask me anything about GOAT’s sales data, past pricing outcomes, or competitive price impact.',
       timestamp: 'Just now',
     },
   ]);

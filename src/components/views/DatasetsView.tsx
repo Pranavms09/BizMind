@@ -224,7 +224,7 @@ export const DatasetsView: React.FC = () => {
       {/* Main Grid: Dataset List (Left) and Details & Preview (Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Column: List, Search, and Filters */}
-        <div className="lg:col-span-5 space-y-4">
+        <div className="lg:col-span-5 min-w-0 space-y-4">
           <div className="flex items-center space-x-2">
             <div className="relative flex-1">
               <Search className="w-4 h-4 text-neutral-500 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -325,7 +325,7 @@ export const DatasetsView: React.FC = () => {
         </div>
 
         {/* Right Column: Dataset Details & Table Preview */}
-        <div className="lg:col-span-7 space-y-6">
+        <div className="lg:col-span-7 min-w-0 space-y-6">
           {selectedDataset ? (
             <div className="rounded-3xl border border-white/10 bg-[#121214] p-6 space-y-6 shadow-xl animate-fade-in">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-white/10">

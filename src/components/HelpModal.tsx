@@ -50,8 +50,8 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose, onSelectT
               <HelpCircle className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-semibold text-white font-mono uppercase">System Guide</h3>
-              <p className="text-xs text-neutral-400 font-mono">Hindsight-Powered Decision Intelligence Architecture</p>
+              <h3 className="text-base font-semibold text-white font-mono uppercase">BizMind System Guide</h3>
+              <p className="text-xs text-neutral-400 font-mono">Hindsight-Powered Decision Intelligence Architecture &bull; Demo: GOAT</p>
             </div>
           </div>
           <button
@@ -71,7 +71,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose, onSelectT
               <span>The Closed-Loop Intelligence Formula</span>
             </div>
             <p className="text-xs text-neutral-300 leading-relaxed font-sans">
-              Standard BI tools only report static past numbers. Hindsight pairs deterministic business math with persistent cloud institutional memory,
+              Standard BI tools only report static past numbers. BizMind pairs deterministic business math with persistent cloud institutional memory (Hindsight),
               historical decisions, and measured outcomes so your company never repeats a strategic mistake.
             </p>
             <div className="pt-2 flex items-center gap-1.5 overflow-x-auto text-[10px] text-neutral-400">

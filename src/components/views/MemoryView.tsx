@@ -200,7 +200,7 @@ export const MemoryView: React.FC = () => {
         </div>
 
         {/* Categories Bar */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 min-w-0">
           {sections.map((cat) => (
             <button
               key={cat}

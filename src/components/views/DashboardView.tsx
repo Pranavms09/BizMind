@@ -189,7 +189,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* Charts Grid: Row 1 - Revenue Trajectory & Product Performance */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Revenue Trend Area Chart */}
-        <div className="p-6 rounded-3xl nothing-card flex flex-col justify-between">
+        <div className="p-6 rounded-3xl nothing-card flex flex-col justify-between min-w-0">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-sm font-bold text-white uppercase tracking-wider">Revenue Trajectory</h3>
@@ -221,7 +221,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Product Performance Bar Chart */}
-        <div className="p-6 rounded-3xl nothing-card flex flex-col justify-between">
+        <div className="p-6 rounded-3xl nothing-card flex flex-col justify-between min-w-0">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-sm font-bold text-white uppercase tracking-wider">Product Performance</h3>
@@ -250,7 +250,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* Charts Grid: Row 2 - Customer Segments & Marketing Channels */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Customer Channels */}
-        <div className="p-6 rounded-3xl nothing-card">
+        <div className="p-6 rounded-3xl nothing-card min-w-0">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-sm font-bold text-white uppercase tracking-wider">Channels</h3>
             <span className="nothing-tag">MARKETPLACES</span>
@@ -294,7 +294,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Marketing Performance */}
-        <div className="p-6 rounded-3xl nothing-card lg:col-span-2">
+        <div className="p-6 rounded-3xl nothing-card lg:col-span-2 min-w-0">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-sm font-bold text-white uppercase tracking-wider">Marketing Acquisition</h3>
@@ -323,7 +323,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* Row 3 - Recent Decisions & Institutional Insights */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Decisions */}
-        <div className="p-6 rounded-3xl nothing-card flex flex-col justify-between">
+        <div className="p-6 rounded-3xl nothing-card flex flex-col justify-between min-w-0">
           <div>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
@@ -382,7 +382,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Recent Insights & Institutional Learning Progress */}
-        <div className="p-6 rounded-3xl nothing-card flex flex-col justify-between">
+        <div className="p-6 rounded-3xl nothing-card flex flex-col justify-between min-w-0">
           <div>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
