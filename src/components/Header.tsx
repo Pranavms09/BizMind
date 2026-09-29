@@ -45,8 +45,8 @@ export function Header({ onOpenUpload, onResetDemo }: HeaderProps) {
         {/* Brand */}
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 p-0.5 shadow-lg shadow-indigo-500/20 flex items-center justify-center">
-            <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
-              <Brain className="w-5 h-5 text-cyan-400 animate-pulse" />
+            <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center p-1 overflow-hidden">
+              <img src="/logo.png" alt="BizMind" className="w-full h-full object-contain" />
             </div>
           </div>
           <div>

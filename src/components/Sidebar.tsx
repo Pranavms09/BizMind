@@ -82,8 +82,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onClick={() => onSelectTab('dashboard')}
             className="flex items-center space-x-3 overflow-hidden group focus:outline-none text-left"
           >
-            <div className="w-8 h-8 rounded-lg bg-white text-black flex items-center justify-center shrink-0 font-bold text-sm tracking-wider shadow-sm group-hover:scale-105 transition-transform font-mono">
-              B
+            <div className="w-8 h-8 rounded-lg bg-neutral-900 border border-white/15 flex items-center justify-center shrink-0 overflow-hidden shadow-sm group-hover:scale-105 transition-transform p-1">
+              <img src="/logo.png" alt="BizMind" className="w-full h-full object-contain" />
             </div>
             {!collapsed && (
               <div className="flex flex-col min-w-0">
