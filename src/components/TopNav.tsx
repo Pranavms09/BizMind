@@ -94,7 +94,9 @@ export const TopNav: React.FC<TopNavProps> = ({
         </button>
 
         <div className="flex items-center space-x-2.5">
-          <span className="glyph-dot-white" />
+          <div className="w-5 h-5 rounded-md bg-neutral-900 border border-white/10 flex items-center justify-center overflow-hidden p-0.5 shrink-0">
+            <img src="/logo.png" alt="BizMind" className="w-full h-full object-contain" />
+          </div>
           <h1 className="text-sm md:text-base font-bold text-white tracking-wider font-mono uppercase">
             {getPageTitle()}
           </h1>

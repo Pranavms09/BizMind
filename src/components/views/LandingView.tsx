@@ -97,8 +97,8 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnterDashboard }) =>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-lg bg-white text-black flex items-center justify-center font-bold text-sm tracking-wider shadow-sm font-mono">
-              B
+            <div className="w-8 h-8 rounded-lg bg-neutral-900 border border-white/15 flex items-center justify-center overflow-hidden shadow-sm p-1 font-mono">
+              <img src="/logo.png" alt="BizMind" className="w-full h-full object-contain" />
             </div>
             <div className="flex items-center space-x-2">
               <span className="font-semibold text-base tracking-tight text-white font-mono">BizMind</span>
