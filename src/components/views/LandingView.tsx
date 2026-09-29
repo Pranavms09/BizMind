@@ -1,7 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { LaserFlow } from '@/components/LaserFlow';
+import { AeroShards } from '@/components/AeroShards';
 import {
   BrainCircuit,
   Database,
@@ -24,6 +25,7 @@ interface LandingViewProps {
 }
 
 export const LandingView: React.FC<LandingViewProps> = ({ onEnterDashboard }) => {
+  const [aeroError, setAeroError] = useState(false);
   const features = [
     {
       title: 'AI Analyst',
@@ -86,7 +88,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnterDashboard }) =>
   ];
 
   return (
-    <div className="min-h-screen bg-[#070709] text-white selection:bg-white selection:text-black overflow-x-hidden font-mono">
+    <div className="min-h-screen bg-[#070709] text-white selection:bg-white selection:text-black overflow-x-hidden font-sans">
       {/* Background ambient lighting */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-purple-900/10 via-pink-900/5 to-transparent blur-[120px]" />
@@ -101,7 +103,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnterDashboard }) =>
               B
             </div>
             <div className="flex items-center space-x-2">
-              <span className="font-semibold text-base tracking-tight text-white font-mono">BizMind</span>
+              <span className="font-bold text-base tracking-tight text-white">BizMind</span>
               <span className="text-[10px] uppercase px-2 py-0.5 rounded bg-white/10 text-neutral-300 font-mono">
                 AI OS
               </span>
@@ -128,38 +130,74 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnterDashboard }) =>
           <div className="flex items-center space-x-3">
             <button
               onClick={() => onEnterDashboard('dashboard')}
-              className="btn-nothing-primary text-xs py-2 px-4 shadow-sm"
+              className="btn-nothing-primary text-xs py-2 px-4 shadow-sm font-semibold tracking-wide flex items-center group"
+              id="landing-header-start-btn"
             >
-              <span>Launch Platform</span>
-              <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+              <span>Start Platform</span>
+              <ArrowRight className="w-3.5 h-3.5 ml-1.5 group-hover:translate-x-0.5 transition-transform" />
             </button>
           </div>
         </div>
       </header>
 
-      {/* HERO SECTION WITH LASERFLOW SHADER */}
+      {/* HERO SECTION WITH AEROSHARDS */}
       <section id="product" className="relative pt-6 pb-20 overflow-hidden">
         <div
-          style={{ height: '520px', position: 'relative', overflow: 'hidden' }}
-          className="w-full flex items-center justify-center"
+          style={{ width: '100%', height: '600px', position: 'relative', overflow: 'hidden' }}
+          className="w-full flex items-center justify-center rounded-3xl"
         >
-          <LaserFlow
-            horizontalBeamOffset={0.1}
-            verticalBeamOffset={0.0}
-            color="#f4f4f4"
-            horizontalSizing={0.5}
-            verticalSizing={2}
-            wispDensity={1}
-            wispSpeed={15}
-            wispIntensity={5}
-            flowSpeed={0.35}
-            flowStrength={0.25}
-            fogIntensity={0.45}
-            fogScale={0.3}
-            fogFallSpeed={0.6}
-            decay={1.1}
-            falloffStart={1.2}
-          />
+          {!aeroError ? (
+            <AeroShards
+              backgroundColor="#120F17"
+              shardColor="#ffffff"
+              accentColor="#ffffff"
+              placement="full"
+              flow="stream"
+              material="pearl"
+              detail="balanced"
+              effect="none"
+              scale={1}
+              spread={1}
+              depth={1}
+              speed={1}
+              spin={1}
+              interaction="repel"
+              density={1.5}
+              shardSize={1.1}
+              stretch={1}
+              turbulence={1}
+              glow={1}
+              edgeSoftness={2}
+              bloom={0.5}
+              grain={0.05}
+              chromaticAberration={0.0075}
+              transitionDuration={1}
+              interactionRadius={1.5}
+              interactionStrength={0.5}
+              rippleIntensity={1}
+              holdToGather
+              paused={false}
+              onError={() => setAeroError(true)}
+            />
+          ) : (
+            <LaserFlow
+              horizontalBeamOffset={0.1}
+              verticalBeamOffset={0.0}
+              color="#f4f4f4"
+              horizontalSizing={0.5}
+              verticalSizing={2}
+              wispDensity={1}
+              wispSpeed={15}
+              wispIntensity={5}
+              flowSpeed={0.35}
+              flowStrength={0.25}
+              fogIntensity={0.45}
+              fogScale={0.3}
+              fogFallSpeed={0.6}
+              decay={1.1}
+              falloffStart={1.2}
+            />
+          )}
 
           {/* Hero Content */}
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-4 sm:px-6 text-center pointer-events-none">
@@ -186,18 +224,21 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnterDashboard }) =>
             <div className="pointer-events-auto flex flex-col sm:flex-row items-center justify-center gap-3 w-full sm:w-auto">
               <button
                 onClick={() => onEnterDashboard('dashboard')}
-                className="btn-nothing-primary text-xs py-3 px-6 uppercase shadow-lg shadow-white/10"
+                className="btn-nothing-primary text-xs py-3.5 px-7 uppercase font-bold tracking-wider shadow-lg shadow-white/20 flex items-center justify-center group hover:scale-105 active:scale-95 transition-all"
+                id="hero-start-dashboard-btn"
               >
-                <span>Launch Executive Dashboard</span>
-                <ArrowRight className="w-4 h-4 ml-1.5" />
+                <span className="w-2 h-2 rounded-full bg-black mr-2 animate-pulse" />
+                <span>Start &bull; Launch Executive Dashboard</span>
+                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </button>
 
               <button
                 onClick={() => onEnterDashboard('analyst')}
-                className="btn-nothing-outline text-xs py-3 px-6 uppercase"
+                className="btn-nothing-outline text-xs py-3.5 px-6 uppercase font-medium tracking-wider flex items-center justify-center group hover:border-white/40 transition-all"
+                id="hero-ask-analyst-btn"
               >
                 <span>Ask AI Analyst</span>
-                <ChevronRight className="w-4 h-4 ml-1 text-neutral-400" />
+                <ChevronRight className="w-4 h-4 ml-1 text-neutral-400 group-hover:text-white transition-colors" />
               </button>
             </div>
           </div>
@@ -207,7 +248,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnterDashboard }) =>
         <div className="max-w-5xl mx-auto px-4 mt-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 rounded-3xl border border-white/10 bg-neutral-950/60 backdrop-blur-md">
             <div className="text-center p-3 border-r border-white/5 last:border-none">
-              <span className="text-xl sm:text-2xl font-bold text-white block">100%</span>
+              <span className="text-xl sm:text-2xl font-bold text-white block font-mono">100%</span>
               <span className="text-[10px] text-neutral-400 uppercase tracking-wider mt-1 block">Deterministic Math</span>
             </div>
             <div className="text-center p-3 border-r border-white/5 last:border-none">
@@ -219,7 +260,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnterDashboard }) =>
               <span className="text-[10px] text-neutral-400 uppercase tracking-wider mt-1 block">Competitor Search</span>
             </div>
             <div className="text-center p-3">
-              <span className="text-xl sm:text-2xl font-bold text-white block">+37.6%</span>
+              <span className="text-xl sm:text-2xl font-bold text-white block font-mono">+37.6%</span>
               <span className="text-[10px] text-neutral-400 uppercase tracking-wider mt-1 block">Validated Lift</span>
             </div>
           </div>
@@ -290,9 +331,10 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnterDashboard }) =>
               <div className="mt-6 pt-3 border-t border-white/5">
                 <button
                   onClick={() => onEnterDashboard('dashboard')}
-                  className="w-full py-2.5 rounded-full bg-white/10 hover:bg-white hover:text-black text-white text-xs font-medium transition-colors uppercase"
+                  className="w-full py-2.5 rounded-full bg-white/10 hover:bg-white hover:text-black text-white text-xs font-semibold transition-colors uppercase tracking-wider flex items-center justify-center space-x-1"
                 >
-                  Enter Platform
+                  <span>Start &bull; Enter Platform</span>
+                  <ArrowRight className="w-3.5 h-3.5 ml-1" />
                 </button>
               </div>
             </div>
@@ -380,10 +422,11 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnterDashboard }) =>
 
           <button
             onClick={() => onEnterDashboard('dashboard')}
-            className="btn-nothing-primary text-xs py-4 px-8 uppercase shadow-2xl shadow-white/20"
+            className="btn-nothing-primary text-xs py-4 px-8 uppercase font-bold tracking-wider shadow-2xl shadow-white/20 flex items-center mx-auto group hover:scale-105 active:scale-95 transition-all"
+            id="landing-cta-start-btn"
           >
-            <span>Launch Executive Dashboard</span>
-            <ArrowRight className="w-4 h-4 ml-1.5" />
+            <span>Start &bull; Launch Executive Dashboard</span>
+            <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
       </section>
@@ -392,7 +435,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnterDashboard }) =>
       <footer className="border-t border-white/10 py-10 bg-[#050507] text-xs text-neutral-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center space-x-2">
-            <span className="font-bold text-white tracking-wider font-mono">BIZMIND</span>
+            <span className="font-bold text-white tracking-wider">BIZMIND</span>
             <span>//</span>
             <span>AI DECISION INTELLIGENCE PLATFORM (DEMO: {GOAT_COMPANY.name})</span>
           </div>
