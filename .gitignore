@@ -3,6 +3,9 @@
 .env*.local
 *.env
 
+# Local state
+.data/
+
 # Dependencies
 node_modules/
 .pnp
@@ -13,6 +16,7 @@ node_modules/
 dist/
 build/
 out/
+*.tsbuildinfo
 
 # Debug logs
 npm-debug.log*
