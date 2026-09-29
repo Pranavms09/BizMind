@@ -798,11 +798,12 @@ export const analysisApi = {
   ): Promise<{ analysis: any; aiResponse: AIAnalysisResponse; conversationId: string }> => {
     const convId = conversationId || `conv-${Date.now()}`;
 
-    // Determine relevant product mentioned in query
-    let product = 'GOAT Rockerz 550';
-    if (/airdopes|tws|earbuds/i.test(question)) product = 'GOAT Airdopes 141';
-    else if (/nirvana|anc|premium/i.test(question)) product = 'GOAT Nirvana 751';
-    else if (/stone|speaker/i.test(question)) product = 'GOAT Stone 350';
+    // Only detect a specific product if mentioned in the query
+    let product: string | undefined = undefined;
+    if (/rockerz|550/i.test(question)) product = 'GOAT Rockerz 550';
+    else if (/airdopes|141|tws|earbuds/i.test(question)) product = 'GOAT Airdopes 141';
+    else if (/nirvana|751|anc|premium/i.test(question)) product = 'GOAT Nirvana 751';
+    else if (/stone|350|speaker/i.test(question)) product = 'GOAT Stone 350';
 
     const res = await fetch('/api/chat', {
       method: 'POST',
@@ -810,6 +811,7 @@ export const analysisApi = {
       body: JSON.stringify({
         query: question,
         message: question,
+        datasetId,
         activeProduct: product,
         product,
         analysisType,

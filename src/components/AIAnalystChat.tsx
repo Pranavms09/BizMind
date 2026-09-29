@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { MemoryEvidenceItem } from '@/types/business';
 import { CompetitiveImpactAnalysis } from '@/types/competitive';
+import { renderFormattedMarkdown } from '@/lib/markdown';
 
 interface Message {
   id: string;
@@ -166,7 +167,11 @@ export function AIAnalystChat({
                   : 'bg-slate-950/80 border border-slate-800/80 text-slate-200 rounded-bl-none'
               }`}
             >
-              <div className="whitespace-pre-wrap">{msg.content}</div>
+              {msg.role === 'assistant' ? (
+                <div className="space-y-1">{renderFormattedMarkdown(msg.content)}</div>
+              ) : (
+                <div className="whitespace-pre-wrap">{msg.content}</div>
+              )}
 
               {/* Competitive Impact Card Embed */}
               {msg.role === 'assistant' && msg.competitiveAnalysis && (

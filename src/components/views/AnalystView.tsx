@@ -30,6 +30,7 @@ import {
 import { analysisApi, datasetsApi } from '@/lib/api-client';
 import { Conversation, AIAnalysisResponse, Dataset } from '@/types';
 import { GOAT_COMPANY, GOAT_PRODUCTS } from '@/config/company';
+import { parseInlineFormatting, renderFormattedMarkdown } from '@/lib/markdown';
 
 interface AnalystViewProps {
   onOpenDecisionModal: () => void;
@@ -466,9 +467,9 @@ export const AnalystView: React.FC<AnalystViewProps> = ({
                     </span>
                     <span className="nothing-tag">INTERPRETATION</span>
                   </div>
-                  <p className="text-xs sm:text-sm text-neutral-200 leading-relaxed font-sans whitespace-pre-line break-words">
-                    {activeAnalysisResult.interpretation || activeAnalysisResult.summary}
-                  </p>
+                  <div className="space-y-1">
+                    {renderFormattedMarkdown(activeAnalysisResult.interpretation || activeAnalysisResult.summary)}
+                  </div>
                 </div>
               </div>
 
@@ -546,7 +547,7 @@ export const AnalystView: React.FC<AnalystViewProps> = ({
                       className="p-3 rounded-2xl border border-white/5 bg-neutral-900/30 flex items-start space-x-2.5 text-xs text-neutral-200"
                     >
                       <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                      <span className="leading-relaxed font-sans">{finding}</span>
+                      <span className="leading-relaxed font-sans">{parseInlineFormatting(finding)}</span>
                     </div>
                   ))}
                 </div>
@@ -565,7 +566,7 @@ export const AnalystView: React.FC<AnalystViewProps> = ({
                         className="p-3 rounded-2xl border border-white/5 bg-neutral-900/40 flex items-start space-x-2.5 text-xs text-neutral-300"
                       >
                         <Lightbulb className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                        <span className="leading-relaxed font-sans">{step}</span>
+                        <span className="leading-relaxed font-sans">{parseInlineFormatting(step)}</span>
                       </div>
                     ))}
                   </div>

@@ -11,7 +11,8 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const query = body.query || body.message || body.question;
-    const activeProduct = body.activeProduct || body.product;
+    const activeProduct = body.activeProduct || body.product || null;
+    const datasetId = body.datasetId || null;
 
     if (!query || typeof query !== 'string') {
       return NextResponse.json({ error: 'Query string is required.' }, { status: 400 });
@@ -20,27 +21,57 @@ export async function POST(req: Request) {
     // 1. Gather current deterministic dataset context (computed by deterministic math engine)
     const allDatasets = getAllDatasets();
     const datasetLabels = Object.keys(allDatasets);
-    const latestDataset = datasetLabels.length > 0 ? allDatasets[datasetLabels[datasetLabels.length - 1]] : null;
+
+    let selectedDataset = null;
+    if (datasetId) {
+      const cleanId = datasetId.replace(/^ds-/, '').toLowerCase();
+      const matchKey = Object.keys(allDatasets).find(
+        (k) =>
+          k.toLowerCase().replace(/\s+/g, '-') === cleanId ||
+          `ds-${k.toLowerCase().replace(/\s+/g, '-')}` === datasetId ||
+          k.toLowerCase() === datasetId.toLowerCase()
+      );
+      if (matchKey) selectedDataset = allDatasets[matchKey];
+    }
+    if (!selectedDataset) {
+      selectedDataset = datasetLabels.length > 0 ? allDatasets[datasetLabels[datasetLabels.length - 1]] : null;
+    }
 
     let currentDataContext = 'Current Business Data: No active sales dataset uploaded yet.';
     let detectedProduct = activeProduct || null;
 
-    if (latestDataset) {
-      const kpis = latestDataset.kpis;
-      currentDataContext = `Latest Period: ${latestDataset.label}
+    if (selectedDataset) {
+      const kpis = selectedDataset.kpis;
+      const records = selectedDataset.records || [];
+
+      // Calculate regional & channel summaries from records
+      const regionRev: Record<string, number> = {};
+      const channelRev: Record<string, number> = {};
+      for (const r of records) {
+        if (r.region) regionRev[r.region] = (regionRev[r.region] || 0) + (r.revenue || 0);
+        if (r.channel) channelRev[r.channel] = (channelRev[r.channel] || 0) + (r.revenue || 0);
+      }
+
+      const topRegion = Object.entries(regionRev).sort((a, b) => b[1] - a[1])[0];
+      const topChannel = Object.entries(channelRev).sort((a, b) => b[1] - a[1])[0];
+
+      currentDataContext = `Active Dataset: ${selectedDataset.label}
 Total Revenue: ₹${kpis.totalRevenue.toLocaleString()}
 Total Units: ${kpis.totalQuantity.toLocaleString()}
-Top Product: ${kpis.topProduct}
-Bottom Product: ${kpis.bottomProduct}
+Top Performing Product: ${kpis.topProduct}
+Lowest Performing Product: ${kpis.bottomProduct}
+${topRegion ? `Top Region: ${topRegion[0]} (₹${topRegion[1].toLocaleString()})` : ''}
+${topChannel ? `Top Channel: ${topChannel[0]} (₹${topChannel[1].toLocaleString()})` : ''}
+
 Product Breakdown:
 ${Object.entries(kpis.productKPIs)
   .map(
     ([prod, pk]) =>
-      `- ${prod}: Revenue ₹${pk.totalRevenue.toLocaleString()} (${pk.revenueChangePercent !== undefined ? (pk.revenueChangePercent > 0 ? '+' : '') + pk.revenueChangePercent + '%' : 'N/A'}), Units: ${pk.totalQuantity} (${pk.quantityChangePercent !== undefined ? (pk.quantityChangePercent > 0 ? '+' : '') + pk.quantityChangePercent + '%' : 'N/A'}), Avg Price: ₹${pk.avgPrice}`
+      `- ${prod}: Revenue ₹${pk.totalRevenue.toLocaleString()} (${pk.revenueSharePercent ? pk.revenueSharePercent + '% share' : 'N/A'}), Units: ${pk.totalQuantity} (${pk.quantityChangePercent !== undefined ? (pk.quantityChangePercent > 0 ? '+' : '') + pk.quantityChangePercent + '%' : 'N/A'}), Avg Price: ₹${pk.avgPrice}`
   )
   .join('\n')}`;
 
-      // Detect product from query if not provided
+      // Detect product from query only if explicitly mentioned
       if (!detectedProduct) {
         for (const prod of Object.keys(kpis.productKPIs)) {
           const shortName = prod.replace(/^GOAT\s+/i, '').toLowerCase();
@@ -221,7 +252,7 @@ You are an institutional memory business decision intelligence agent.
           (p) => p.name.toLowerCase() === prod.toLowerCase() || prod.toLowerCase().includes(p.name.toLowerCase())
         );
         const fallbackPrice = foundConfig ? foundConfig.baselinePrice : 1499;
-        const internalCurrentPrice = latestDataset?.kpis?.productKPIs?.[prod]?.avgPrice || fallbackPrice;
+        const internalCurrentPrice = selectedDataset?.kpis?.productKPIs?.[prod]?.avgPrice || fallbackPrice;
         
         // Extract percentage or target price from query
         let proposed = Math.round(internalCurrentPrice * 0.9);
@@ -248,17 +279,17 @@ You are an institutional memory business decision intelligence agent.
       }
     }
 
-    const calculatedFacts = latestDataset
+    const calculatedFacts = selectedDataset
       ? {
-          totalRevenue: latestDataset.kpis.totalRevenue,
-          revenueFormatted: `₹${latestDataset.kpis.totalRevenue.toLocaleString('en-IN')}`,
-          totalQuantity: latestDataset.kpis.totalQuantity,
-          unitsFormatted: `${latestDataset.kpis.totalQuantity.toLocaleString('en-IN')} units`,
-          growthPercent: latestDataset.kpis.revenueGrowthPercent ?? 18.4,
-          quantityGrowthPercent: latestDataset.kpis.quantityGrowthPercent ?? 14.2,
-          topProduct: latestDataset.kpis.topProduct,
-          bottomProduct: latestDataset.kpis.bottomProduct,
-          productKpi: detectedProduct ? latestDataset.kpis.productKPIs[detectedProduct] : null,
+          totalRevenue: selectedDataset.kpis.totalRevenue,
+          revenueFormatted: `₹${selectedDataset.kpis.totalRevenue.toLocaleString('en-IN')}`,
+          totalQuantity: selectedDataset.kpis.totalQuantity,
+          unitsFormatted: `${selectedDataset.kpis.totalQuantity.toLocaleString('en-IN')} units`,
+          growthPercent: selectedDataset.kpis.revenueGrowthPercent ?? 18.4,
+          quantityGrowthPercent: selectedDataset.kpis.quantityGrowthPercent ?? 14.2,
+          topProduct: selectedDataset.kpis.topProduct,
+          bottomProduct: selectedDataset.kpis.bottomProduct,
+          productKpi: detectedProduct ? selectedDataset.kpis.productKPIs[detectedProduct] : null,
         }
       : {
           totalRevenue: 577372,
