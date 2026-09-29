@@ -2,7 +2,7 @@
 
 > **"An institutional memory decision intelligence platform that remembers what the company tried, why it tried it, what happened afterward, and uses those experiences when analyzing future business decisions."**
 
-Built for the **HackWithHyderabad** Hackathon. Powered by **Hindsight Cloud** persistent memory and **Groq** high-speed LLM & live browser search.
+Powered by **Hindsight Cloud** persistent memory and **Groq** high-speed LLM & live browser search.
 
 ---
 
@@ -144,9 +144,9 @@ Allows users to ask complex strategic questions like:
 
 ---
 
-## 🎭 The 7-Step Hackathon Demo Story
+## 🎭 The 7-Step Interactive Demo Walkthrough
 
-BizMind includes an **Interactive Hackathon Demo Journey** banner allowing judges to step through the entire institutional loop in one click:
+BizMind includes an **Interactive Guided Demo Journey** banner allowing users to step through the entire institutional loop in one click:
 
 | Step | Action | Business Narrative & Technical Mechanism |
 |---|---|---|
@@ -219,7 +219,7 @@ BizMind includes an **Interactive Hackathon Demo Journey** banner allowing judge
 │   │   ├── DatasetUploadModal.tsx          # CSV uploader & one-click demo presets
 │   │   ├── DecisionModal.tsx               # Decision form with target metric & expected growth
 │   │   ├── DecisionTimeline.tsx            # Decision event timeline renderer
-│   │   ├── DemoWalkthroughBanner.tsx       # 7-step interactive hackathon journey banner
+│   │   ├── DemoWalkthroughBanner.tsx       # 7-step interactive guided journey banner
 │   │   ├── Header.tsx                      # Brand header with Hindsight bank connectivity badge
 │   │   ├── HelpModal.tsx                   # Keyboard shortcuts & feature guide
 │   │   ├── LaserFlow.tsx                   # Canvas-based laser beam fallback background
@@ -333,7 +333,7 @@ npx tsc --noEmit
 
 ---
 
-## 🏆 Hackathon Highlights
+## 🏆 Key Architecture Highlights
 
 - **Mandatory Hindsight Integration**: Hindsight is the central backbone of the product, providing real institutional learning across quarters rather than stateless chat.
 - **Zero Numerical Hallucinations**: Exact company figures and scenario rankings are computed deterministically in code before the LLM ever sees them.
