@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { X, UploadCloud, FileSpreadsheet, Check, Sparkles } from 'lucide-react';
+import { formatFilenameToLabel } from '@/lib/analytics';
 
 interface DatasetUploadModalProps {
   isOpen: boolean;
@@ -24,7 +25,7 @@ export function DatasetUploadModal({
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    setLabel(file.name.replace(/\.csv$/i, ''));
+    setLabel(formatFilenameToLabel(file.name));
     const text = await file.text();
     setCsvContent(text);
   }

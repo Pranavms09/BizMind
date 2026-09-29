@@ -11,6 +11,7 @@ import {
   Insight,
 } from '@/types';
 import { GOAT_COMPANY, GOAT_PRODUCTS } from '@/config/company';
+import { formatFilenameToLabel } from '@/lib/analytics';
 
 // Helper for formatting currency
 export function formatINR(val: number): string {
@@ -29,17 +30,34 @@ export const datasetsApi = {
       const datasetsObj = data.datasets || {};
       const list: Dataset[] = [];
 
-      Object.keys(datasetsObj).forEach((key, idx) => {
+      let activeId: string | null = null;
+      if (typeof window !== 'undefined') {
+        activeId = localStorage.getItem('bizmind_active_dataset_id');
+      }
+
+      const keys = Object.keys(datasetsObj);
+      keys.forEach((key, idx) => {
         const item = datasetsObj[key];
         const kpis = item.kpis;
         const pKpis = kpis?.productKPIs || {};
         const prodKeys = Object.keys(pKpis);
+        const dsId = `ds-${key.toLowerCase().replace(/\s+/g, '-')}`;
+
+        const isLast = idx === keys.length - 1;
+        const isActive = activeId ? dsId === activeId : isLast;
+
+        const displayName =
+          item.label.toLowerCase().includes('goat') || item.label.toLowerCase().includes('bizmind')
+            ? item.label
+            : ['december 2025', 'january 2026', 'february 2026', 'march 2026'].includes(item.label.toLowerCase())
+            ? `${GOAT_COMPANY.name} ${item.label}`
+            : item.label;
 
         list.push({
-          id: `ds-${key.toLowerCase().replace(/\s+/g, '-')}`,
-          name: `${GOAT_COMPANY.name} ${item.label}`,
+          id: dsId,
+          name: displayName,
           filename: `${key.toLowerCase().replace(/\s+/g, '_')}_sales.csv`,
-          rowCount: kpis?.totalQuantity || 1250,
+          rowCount: item.records?.length || kpis?.totalQuantity || 1250,
           columnCount: 6,
           columns: [
             { name: 'date', type: 'date', sampleValues: ['2026-01-05'], nonNullCount: 100, uniqueCount: 30 },
@@ -49,10 +67,10 @@ export const datasetsApi = {
             { name: 'channel', type: 'string', sampleValues: ['Amazon India', 'Flipkart', 'D2C'], nonNullCount: 100, uniqueCount: 3 },
             { name: 'region', type: 'string', sampleValues: ['North', 'South', 'West'], nonNullCount: 100, uniqueCount: 4 },
           ],
-          isActive: idx === Object.keys(datasetsObj).length - 1,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          description: `GOAT Audio telemetry for ${item.label}. Processed deterministically with MoM comparison.`,
+          isActive,
+          createdAt: item.uploadedAt || new Date().toISOString(),
+          updatedAt: item.uploadedAt || new Date().toISOString(),
+          description: `Telemetry dataset for ${item.label}. Processed deterministically with MoM comparison.`,
         });
       });
 
@@ -70,7 +88,41 @@ export const datasetsApi = {
       throw new Error('Dataset not found');
     }
 
-    // Generate realistic sample rows matching GOAT products
+    try {
+      const res = await fetch('/api/datasets');
+      const data = await res.json();
+      const datasetsObj = data.datasets || {};
+      const key = Object.keys(datasetsObj).find((k) => `ds-${k.toLowerCase().replace(/\s+/g, '-')}` === id);
+      const item = key ? datasetsObj[key] : null;
+
+      if (item && Array.isArray(item.records) && item.records.length > 0) {
+        const startIdx = (page - 1) * pageSize;
+        const pagedRows = item.records.slice(startIdx, startIdx + pageSize).map((r: any, idx: number) => ({
+          id: `row-${startIdx + idx + 1}`,
+          date: r.date,
+          product: r.product,
+          quantity: r.quantity,
+          revenue: r.revenue,
+          channel: r.channel || 'Online',
+          region: r.region || 'National',
+        }));
+
+        return {
+          ...found,
+          rows: pagedRows,
+          pagination: {
+            page,
+            pageSize,
+            totalRows: item.records.length,
+            totalPages: Math.ceil(item.records.length / pageSize),
+          },
+        };
+      }
+    } catch (err) {
+      console.warn('Falling back to synthetic rows preview:', err);
+    }
+
+    // Fallback sample rows if actual records are unavailable
     const rows = [];
     const products = GOAT_PRODUCTS;
     const channels = ['Amazon India', 'Flipkart', 'GOAT D2C', 'Croma', 'Reliance Digital'];
@@ -103,29 +155,57 @@ export const datasetsApi = {
   },
 
   uploadCSV: async (file: File, label?: string, previousLabel?: string): Promise<{ dataset: Dataset }> => {
-    const text = await file.text();
-    const effectiveLabel = label || file.name.replace(/\.[^/.]+$/, '');
+    if (!file) {
+      throw new Error('No file selected for upload.');
+    }
+    if (!file.name.toLowerCase().endsWith('.csv')) {
+      throw new Error('Invalid file format. Please upload a .csv file.');
+    }
+
+    const csvContent = await file.text();
+    if (!csvContent.trim()) {
+      throw new Error('The selected CSV file is empty.');
+    }
+
+    const effectiveLabel = (label && label.trim()) || formatFilenameToLabel(file.name);
+
     const res = await fetch('/api/datasets', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        rawCsv: text,
         label: effectiveLabel,
+        csvContent,
         previousLabel,
       }),
     });
+
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'Failed to upload CSV dataset');
+      let msg = err.error || 'Failed to upload CSV dataset';
+      if (err.details && Array.isArray(err.details) && err.details.length > 0) {
+        msg = `${msg}: ${err.details.slice(0, 3).join(', ')}`;
+      }
+      throw new Error(msg);
     }
+
     const data = await res.json();
     const list = await datasetsApi.getDatasets();
-    return { dataset: list[list.length - 1] || list[0] };
+    const found =
+      list.find(
+        (d) =>
+          d.name.toLowerCase() === effectiveLabel.toLowerCase() ||
+          d.id === `ds-${effectiveLabel.toLowerCase().replace(/\s+/g, '-')}`
+      ) ||
+      list[list.length - 1] ||
+      list[0];
+
+    return { dataset: found };
   },
 
   activateDataset: async (id: string): Promise<void> => {
-    // Stored locally or refreshed via session
-    return;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('bizmind_active_dataset_id', id);
+    }
   },
 
   loadDemoDataset: async (preset: 'december' | 'january' | 'february' | 'march' = 'january'): Promise<Dataset> => {
@@ -150,6 +230,9 @@ export const datasetsApi = {
   },
 
   clearAllDatasets: async (): Promise<void> => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('bizmind_active_dataset_id');
+    }
     await fetch('/api/timeline', { method: 'POST' }).catch(() => {});
   },
 };
@@ -725,8 +808,11 @@ export const analysisApi = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        query: question,
         message: question,
+        activeProduct: product,
         product,
+        analysisType,
       }),
     });
 
@@ -738,7 +824,7 @@ export const analysisApi = {
     const data = await res.json();
 
     // Map backend response to AIAnalysisResponse
-    const responseText = data.response || '';
+    const responseText = data.reply || data.response || '';
     const evidence = data.evidence || [];
     const situations = data.currentSituations || [];
 

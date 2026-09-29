@@ -31,7 +31,8 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    let { label, csvContent, preset, previousLabel } = body;
+    let { label, csvContent, rawCsv, preset, previousLabel } = body;
+    csvContent = csvContent || rawCsv;
 
     // Support one-click demo presets
     if (preset) {
@@ -53,7 +54,12 @@ export async function POST(req: Request) {
       }
     }
 
-    if (!csvContent || !label) {
+    if (
+      !csvContent ||
+      !label ||
+      (typeof csvContent === 'string' && !csvContent.trim()) ||
+      (typeof label === 'string' && !label.trim())
+    ) {
       return NextResponse.json(
         { error: 'Both label and csvContent (or a valid preset) are required.' },
         { status: 400 }
@@ -61,9 +67,15 @@ export async function POST(req: Request) {
     }
 
     const { records, errors } = parseSalesCSV(csvContent);
-    if (errors.length > 0 && records.length === 0) {
+    if (records.length === 0) {
       return NextResponse.json(
-        { error: 'CSV parsing failed completely.', details: errors },
+        {
+          error:
+            errors.length > 0
+              ? `CSV parsing failed completely. ${errors[0]}`
+              : 'The uploaded CSV file contains no valid data rows.',
+          details: errors,
+        },
         { status: 400 }
       );
     }

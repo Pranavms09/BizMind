@@ -11,12 +11,18 @@ import {
   ChevronRight,
   Sparkles,
   Table,
+  FileSpreadsheet,
+  AlertCircle,
+  X,
 } from 'lucide-react';
 import { datasetsApi } from '@/lib/api-client';
+import { formatFilenameToLabel } from '@/lib/analytics';
+import { useToast } from '@/contexts/ToastContext';
 import { Dataset } from '@/types';
 import { GOAT_COMPANY } from '@/config/company';
 
 export const DatasetsView: React.FC = () => {
+  const { showToast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [datasets, setDatasets] = useState<Dataset[]>([]);
@@ -26,6 +32,11 @@ export const DatasetsView: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
+
+  // Staged file state for confirmation and custom label editing
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [customLabel, setCustomLabel] = useState<string>('');
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   // Pagination for dataset row preview
   const [page, setPage] = useState(1);
@@ -64,29 +75,103 @@ export const DatasetsView: React.FC = () => {
     }
   };
 
-  const handleFileUpload = async (file: File) => {
+  const handleFileSelected = async (file: File) => {
+    if (!file) {
+      const msg = 'No file selected. Please choose a CSV file.';
+      setUploadError(msg);
+      showToast(msg, 'error');
+      return;
+    }
+
     if (!file.name.toLowerCase().endsWith('.csv')) {
-      alert('Please upload a valid .csv file format');
+      const msg = 'Invalid file format. Please upload a valid .csv file.';
+      setUploadError(msg);
+      showToast(msg, 'error');
+      setSelectedFile(null);
+      return;
+    }
+
+    try {
+      const text = await file.text();
+      if (!text.trim()) {
+        const msg = 'The selected CSV file is empty. Please select a CSV file with valid data.';
+        setUploadError(msg);
+        showToast(msg, 'error');
+        setSelectedFile(null);
+        return;
+      }
+
+      setUploadError(null);
+      setSelectedFile(file);
+      setCustomLabel(formatFilenameToLabel(file.name));
+    } catch (err: any) {
+      const msg = err.message || 'Failed to read the selected file.';
+      setUploadError(msg);
+      showToast(msg, 'error');
+    }
+  };
+
+  const handleUploadSubmit = async () => {
+    if (!selectedFile) {
+      const msg = 'No file selected. Please select a CSV file first.';
+      setUploadError(msg);
+      showToast(msg, 'error');
+      fileInputRef.current?.click();
+      return;
+    }
+
+    if (!selectedFile.name.toLowerCase().endsWith('.csv')) {
+      const msg = 'Invalid file format. Please upload a valid .csv file.';
+      setUploadError(msg);
+      showToast(msg, 'error');
       return;
     }
 
     setUploading(true);
+    setUploadError(null);
     try {
-      const res = await datasetsApi.uploadCSV(file);
+      const csvContent = await selectedFile.text();
+      if (!csvContent.trim()) {
+        const msg = 'The selected CSV file is empty. Please select a CSV file with valid data.';
+        setUploadError(msg);
+        showToast(msg, 'error');
+        setUploading(false);
+        return;
+      }
+
+      const effectiveLabel = customLabel.trim() || formatFilenameToLabel(selectedFile.name);
+      const res = await datasetsApi.uploadCSV(selectedFile, effectiveLabel);
+      showToast(`Dataset "${res.dataset.name}" ingested successfully!`, 'success');
+      setSelectedFile(null);
+      setCustomLabel('');
+      if (fileInputRef.current) fileInputRef.current.value = '';
       await fetchDatasets();
       await loadDatasetDetails(res.dataset.id, 1);
     } catch (err: any) {
-      alert(err.message || 'Failed to parse CSV file');
+      const msg = err.message || 'Failed to parse CSV file';
+      setUploadError(msg);
+      showToast(msg, 'error');
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleHeaderUploadClick = () => {
+    if (!selectedFile) {
+      const msg = 'No file selected. Please select a CSV file first.';
+      setUploadError(msg);
+      showToast(msg, 'error');
+      fileInputRef.current?.click();
+      return;
+    }
+    handleUploadSubmit();
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFileUpload(e.dataTransfer.files[0]);
+      handleFileSelected(e.dataTransfer.files[0]);
     }
   };
 
@@ -95,19 +180,25 @@ export const DatasetsView: React.FC = () => {
       await datasetsApi.activateDataset(id);
       await fetchDatasets();
       await loadDatasetDetails(id, 1);
+      showToast('Active telemetry source updated.', 'success');
     } catch (err: any) {
       console.error('Failed to activate dataset', err);
+      showToast('Failed to activate dataset', 'error');
     }
   };
 
   const handleLoadDemo = async (preset: 'december' | 'january' | 'february' | 'march') => {
     try {
       setUploading(true);
+      setUploadError(null);
       const demo = await datasetsApi.loadDemoDataset(preset);
       await fetchDatasets();
       await loadDatasetDetails(demo.id, 1);
+      showToast(`Loaded ${preset.toUpperCase()} preset dataset.`, 'success');
     } catch (err: any) {
-      console.error('Failed to load sample dataset', err);
+      const msg = err.message || 'Failed to load sample dataset';
+      setUploadError(msg);
+      showToast(msg, 'error');
     } finally {
       setUploading(false);
     }
@@ -117,7 +208,11 @@ export const DatasetsView: React.FC = () => {
     if (window.confirm('Clear all uploaded datasets?')) {
       await datasetsApi.clearAllDatasets();
       setSelectedDataset(null);
+      setSelectedFile(null);
+      setCustomLabel('');
+      setUploadError(null);
       await fetchDatasets();
+      showToast('All datasets cleared.', 'info');
     }
   };
 
@@ -174,15 +269,31 @@ export const DatasetsView: React.FC = () => {
           )}
 
           <button
-            onClick={() => fileInputRef.current?.click()}
+            onClick={handleHeaderUploadClick}
             disabled={uploading}
             className="btn-nothing-primary text-xs py-2 px-4 uppercase tracking-wider shadow-sm flex items-center space-x-1.5"
           >
             <Upload className={`w-4 h-4 ${uploading ? 'animate-bounce' : ''}`} />
-            <span>{uploading ? 'Parsing CSV...' : 'Upload CSV'}</span>
+            <span>{uploading ? 'Parsing CSV...' : selectedFile ? 'Upload Selected' : 'Upload CSV'}</span>
           </button>
         </div>
       </div>
+
+      {/* Upload Error Banner if active */}
+      {uploadError && (
+        <div className="p-4 rounded-2xl border border-red-500/20 bg-red-500/10 text-red-300 text-xs flex items-center justify-between font-mono animate-fade-in">
+          <div className="flex items-center space-x-2.5">
+            <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+            <span>{uploadError}</span>
+          </div>
+          <button
+            onClick={() => setUploadError(null)}
+            className="text-neutral-400 hover:text-white ml-2 text-xs"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
 
       {/* CSV Drag & Drop Zone */}
       <div
@@ -192,10 +303,18 @@ export const DatasetsView: React.FC = () => {
         }}
         onDragLeave={() => setIsDragOver(false)}
         onDrop={handleDrop}
-        onClick={() => fileInputRef.current?.click()}
-        className={`rounded-3xl border-2 border-dashed p-8 text-center transition-all cursor-pointer ${
+        onClick={() => {
+          if (!selectedFile) {
+            fileInputRef.current?.click();
+          }
+        }}
+        className={`rounded-3xl border-2 border-dashed p-8 text-center transition-all ${
+          selectedFile ? 'cursor-default' : 'cursor-pointer'
+        } ${
           isDragOver
             ? 'border-white bg-white/10 scale-[1.01]'
+            : selectedFile
+            ? 'border-white/30 bg-[#161619]'
             : 'border-white/15 bg-neutral-900/30 hover:border-white/30 hover:bg-neutral-900/50'
         }`}
       >
@@ -204,21 +323,92 @@ export const DatasetsView: React.FC = () => {
           ref={fileInputRef}
           onChange={(e) => {
             if (e.target.files && e.target.files[0]) {
-              handleFileUpload(e.target.files[0]);
+              handleFileSelected(e.target.files[0]);
             }
           }}
           accept=".csv"
           className="hidden"
         />
-        <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 text-white flex items-center justify-center mx-auto mb-3">
-          <Upload className="w-5 h-5 text-neutral-300" />
-        </div>
-        <p className="text-sm font-semibold text-white">
-          Drop your sales CSV file here, or <span className="underline">browse files</span>
-        </p>
-        <p className="text-xs text-neutral-500 mt-1 font-sans">
-          Supports comma-delimited sales, orders, and customer cohort files. Evaluated deterministically.
-        </p>
+
+        {selectedFile ? (
+          <div className="space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-white/10 border border-white/20 text-white flex items-center justify-center mx-auto mb-2">
+              <FileSpreadsheet className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-white truncate max-w-lg mx-auto">
+                {selectedFile.name}
+              </p>
+              <p className="text-xs text-neutral-400 mt-1 font-sans">
+                Size: {(selectedFile.size / 1024).toFixed(1)} KB • File ready for ingestion
+              </p>
+            </div>
+
+            {/* Editable Sensible Label */}
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="mt-3 flex flex-col sm:flex-row items-center justify-center gap-2 max-w-md mx-auto"
+            >
+              <span className="text-xs text-neutral-400 font-mono shrink-0">Label:</span>
+              <input
+                type="text"
+                value={customLabel}
+                onChange={(e) => setCustomLabel(e.target.value)}
+                placeholder="Dataset label"
+                className="w-full px-3 py-1.5 rounded-xl border border-white/15 bg-neutral-900 text-white text-xs placeholder:text-neutral-500 focus:outline-none focus:border-white/40 font-mono"
+              />
+            </div>
+
+            {/* Action buttons */}
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="mt-4 flex items-center justify-center gap-2.5 pt-2"
+            >
+              <button
+                type="button"
+                onClick={handleUploadSubmit}
+                disabled={uploading}
+                className="btn-nothing-primary text-xs py-2 px-5 uppercase tracking-wider flex items-center space-x-1.5"
+              >
+                <Upload className={`w-3.5 h-3.5 ${uploading ? 'animate-bounce' : ''}`} />
+                <span>{uploading ? 'Parsing CSV...' : 'Upload & Ingest CSV'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="btn-nothing-outline text-xs py-2 px-3 uppercase text-neutral-300 hover:text-white"
+              >
+                Change File
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedFile(null);
+                  setCustomLabel('');
+                  setUploadError(null);
+                  if (fileInputRef.current) fileInputRef.current.value = '';
+                }}
+                disabled={uploading}
+                className="btn-nothing-outline text-xs py-2 px-3 uppercase text-neutral-400 hover:text-red-400"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div>
+            <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 text-white flex items-center justify-center mx-auto mb-3">
+              <Upload className="w-5 h-5 text-neutral-300" />
+            </div>
+            <p className="text-sm font-semibold text-white">
+              Drop your sales CSV file here, or <span className="underline">browse files</span>
+            </p>
+            <p className="text-xs text-neutral-500 mt-1 font-sans">
+              Supports comma-delimited sales, orders, and customer cohort files. Evaluated deterministically.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Main Grid: Dataset List (Left) and Details & Preview (Right) */}

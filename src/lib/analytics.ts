@@ -12,6 +12,33 @@ export interface ParseResult {
 }
 
 /**
+ * Generates a human-readable title/label from a CSV filename.
+ * E.g. "bizmind_synthetic_consumer_audio_financial_history.csv" -> "BizMind Synthetic Consumer Audio Financial History"
+ */
+export function formatFilenameToLabel(filename: string): string {
+  if (!filename) return 'Custom Dataset';
+  const nameWithoutExt = filename.replace(/\.[^/.]+$/, '');
+  const spaced = nameWithoutExt
+    .replace(/[._-]+/g, ' ')
+    .replace(/([a-z\d])([A-Z])/g, '$1 $2')
+    .trim();
+
+  if (!spaced) return 'Custom Dataset';
+
+  return spaced
+    .split(/\s+/)
+    .map((word) => {
+      const lower = word.toLowerCase();
+      if (lower === 'bizmind') return 'BizMind';
+      if (['kpi', 'kpis', 'd2c', 'csv', 'ai', 'b2b', 'b2c', 'mom', 'yoy', 'inr'].includes(lower)) {
+        return lower.toUpperCase();
+      }
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(' ');
+}
+
+/**
  * Validates and parses raw CSV string into strongly typed SalesRecords.
  */
 export function parseSalesCSV(csvString: string): ParseResult {
@@ -32,12 +59,14 @@ export function parseSalesCSV(csvString: string): ParseResult {
     const row = parsed.data[i];
     const rowNum = i + 2;
 
-    const date = row.date;
-    const product = row.product;
-    const quantity = parseFloat(row.quantity || '0');
-    const revenue = parseFloat(row.revenue || '0');
-    const region = row.region;
-    const channel = row.channel;
+    const date = row.date?.trim();
+    const product = row.product?.trim();
+    const rawQuantity = (row.quantity ?? '').toString().replace(/,/g, '').trim();
+    const rawRevenue = (row.revenue ?? '').toString().replace(/[^0-9.-]/g, '').trim();
+    const quantity = parseFloat(rawQuantity || '0');
+    const revenue = parseFloat(rawRevenue || '0');
+    const region = row.region?.trim() || 'National';
+    const channel = row.channel?.trim() || 'Direct';
 
     if (!date) {
       errors.push(`Row ${rowNum}: missing required field 'date'`);

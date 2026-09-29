@@ -56,6 +56,7 @@ export const AnalystView: React.FC<AnalystViewProps> = ({
   const [activeAnalysisResult, setActiveAnalysisResult] = useState<AIAnalysisResponse | null>(null);
   const [activeQuestion, setActiveQuestion] = useState<string>('');
   const [rawBackendResult, setRawBackendResult] = useState<any>(null);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
 
   // Loading state
   const [loading, setLoading] = useState<boolean>(false);
@@ -132,6 +133,7 @@ export const AnalystView: React.FC<AnalystViewProps> = ({
     setActiveQuestion('');
     setQuestion('');
     setRawBackendResult(null);
+    setAnalysisError(null);
   };
 
   const handleClearHistory = async () => {
@@ -141,6 +143,7 @@ export const AnalystView: React.FC<AnalystViewProps> = ({
     setActiveAnalysisResult(null);
     setActiveQuestion('');
     setRawBackendResult(null);
+    setAnalysisError(null);
   };
 
   const handleRunAnalysis = async (customQuestion?: string) => {
@@ -148,6 +151,7 @@ export const AnalystView: React.FC<AnalystViewProps> = ({
     if (!query || loading) return;
 
     setLoading(true);
+    setAnalysisError(null);
     setActiveQuestion(query);
 
     setLoadingStage('Calculating deterministic business facts...');
@@ -178,6 +182,7 @@ export const AnalystView: React.FC<AnalystViewProps> = ({
       }, 100);
     } catch (err: any) {
       console.error('Analysis error:', err);
+      setAnalysisError(err.message || 'Failed to process AI analysis. Please verify system connection.');
     } finally {
       clearTimeout(s1);
       clearTimeout(s2);
@@ -407,6 +412,29 @@ export const AnalystView: React.FC<AnalystViewProps> = ({
               <p className="text-xs text-neutral-500 max-w-sm mx-auto font-sans">
                 Running deterministic math, filtering anomalies, and verifying past institutional lessons from Hindsight Cloud bank.
               </p>
+            </div>
+          )}
+
+          {/* Analysis Error Alert */}
+          {analysisError && !loading && (
+            <div className="rounded-3xl border border-red-500/30 bg-red-950/20 p-6 space-y-3 shadow-xl animate-fade-in">
+              <div className="flex items-center space-x-2 text-red-400">
+                <AlertCircle className="w-5 h-5 shrink-0" />
+                <h3 className="text-sm font-semibold uppercase tracking-wider">Analysis Engine Alert</h3>
+              </div>
+              <p className="text-xs text-neutral-300 font-sans leading-relaxed">
+                {analysisError}
+              </p>
+              {activeQuestion && (
+                <button
+                  type="button"
+                  onClick={() => handleRunAnalysis(activeQuestion)}
+                  className="btn-nothing-outline text-xs py-2 px-4 uppercase tracking-wider border-red-500/30 hover:border-red-500/60 text-red-300 flex items-center space-x-1.5"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Retry Analysis</span>
+                </button>
+              )}
             </div>
           )}
 
