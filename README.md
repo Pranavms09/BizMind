@@ -110,6 +110,38 @@ Allows users to ask complex strategic questions like:
   - Outcomes evaluated vs targets
   - Lessons retained into Hindsight
 
+### 5. 💎 Nothing OS-Inspired Monochrome Executive Suite
+- **Aesthetic & Design System**: High-contrast monochrome palette, dot-matrix styling, glowing translucent glass panels, glyph status badges, and micro-interactions.
+- **8 Dedicated Business Modules**:
+  - **Executive Dashboard (`DashboardView`)**: Real-time KPI summaries (Revenue, Units, ASP, MoM Growth), revenue share breakdowns, high-severity anomaly alerts, and scenario quick-launchers.
+  - **AI Strategic Analyst (`AnalystView`)**: Conversational strategic intelligence powered by Groq and Hindsight Cloud, featuring clickable memory citation pills, quick strategy prompts, and full evidence audit modals.
+  - **Competitive Impact Center (`CompetitiveView`)**: Market intelligence workspace conducting real-time Groq browser search against live Indian audio competitors (**boAt**, **Noise**, **Boult**), deterministic price gap indexes, and 3-scenario simulations.
+  - **Dataset Ingestion & Management (`DatasetsView`)**: Multi-quarter CSV ingestion hub with pre-loaded demo sets (Dec 2025, Jan 2026, Feb 2026, Mar 2026) and custom CSV upload support with schema verification and anomaly detection.
+  - **Strategic Decisions Ledger (`DecisionsView`)**: Complete governance ledger tracking proposed actions, expected KPI growth targets, evaluated post-implementation results, and retained lessons.
+  - **Hindsight Memory Explorer (`MemoryView`)**: Direct bank inspector for the Hindsight Cloud memory bank (`business-analyst`), memory recall simulation, and precedent search.
+  - **Cognitive Learning & Rules Engine (`LearningView`)**: Synthesizes historical lessons into reusable company guidelines, cross-category elasticity principles, and strategic operational rules.
+  - **Interactive Business Timeline (`TimelineView`)**: Chronological unified feed of detected anomalies, leadership decisions, outcome reviews, and institutional memory retention events.
+
+### 6. 🌐 Interactive 3D WebGPU AeroShards & Three.js Memory Network
+- **AeroShards 3D WebGPU Engine (`vgpu`)**:
+  - WebGPU-powered visual compute shader simulation with procedural shard dynamics.
+  - Real-time cursor interaction modes (`repel`, `attract`, `ripple`, `hold-to-gather`).
+  - Physically based shading with pearl/chrome materials, bloom, procedural film grain, and chromatic aberration.
+  - **Graceful Canvas Fallback**: Automatically falls back to high-performance canvas-based `LaserFlow` beam animations on non-WebGPU devices.
+- **3D Memory Neural Network (`ThreeMemoryNetwork`)**:
+  - Interactive WebGL Three.js (`@react-three/fiber` & `@react-three/drei`) neural node graph.
+  - Visualizes semantic clusters of corporate memories, strategic precedents, and institutional knowledge nodes in real-time 3D space.
+
+### 7. ⚡ Global Command Center (`Cmd+K` / `Ctrl+K`) & Quick Navigation
+- **Spotlight Search & Launcher (`CommandCenter`)**: Instant keyboard-driven navigation across all views, preset actions, demo triggers, and settings modals.
+- **Global Toast Notification System (`ToastContext`)**: Instant non-blocking alerts for actions, data uploads, and decision logging.
+- **Settings & Help Modals**: Manage active configurations, view hotkeys cheatsheet, and trigger full system state resets.
+
+### 8. 🚀 Full-Screen Immersive Landing Experience with Dynamic State
+- **Full-Screen Hero Showcase (`LandingView`)**:
+  - Immersive hero section featuring the live AeroShards background, benchmark metrics (100% Deterministic Math, <2s Groq Response, Live Competitor Search, +37.6% Validated Lift), and direct CTA launchers (*"Start • Launch Executive Dashboard"* and *"Ask AI Analyst"*).
+  - Synchronized browser URL routing (`?landing=true` / `?landing=false` and `?tab=...`) with browser history navigation support (`popstate`).
+
 ---
 
 ## 🎭 The 7-Step Hackathon Demo Story
@@ -132,18 +164,28 @@ BizMind includes an **Interactive Hackathon Demo Journey** banner allowing judge
 
 - **Frontend Framework**: Next.js 15.5 (App Router, Server & Client Components)
 - **Language**: TypeScript 5.7 (Strict type-checking)
-- **Styling**: Tailwind CSS, Lucide Icons, Glassmorphism UI
+- **Styling & Design System**: Tailwind CSS, Nothing OS Monochrome Aesthetic, Lucide Icons, Glassmorphic Panels
+- **3D & Visual Compute Graphics**:
+  - **AeroShards**: WebGPU compute & fragment shaders (`vgpu`)
+  - **Memory Network**: Three.js, React Three Fiber (`@react-three/fiber`), Drei (`@react-three/drei`)
+  - **Motion & Canvas**: GSAP, Custom HTML5 Canvas (`LaserFlow`)
+- **Data Visualization**: Recharts (Revenue share, KPI distribution charts)
 - **Memory Provider**: **Hindsight Cloud** (`@vectorize-io/hindsight-client`)
 - **LLM & Search Provider**: **Groq SDK** (`groq-sdk`)
   - Primary Model: `openai/gpt-oss-120b` (with browser search tool enabled)
   - Fallback Model: `qwen/qwen3.8-27b` (automatic failover on rate limits)
 - **Data Persistence**: Server-side local JSON store (`.data/business_state.json`) protected by `.gitignore`
+- **Client Architecture**: Strongly typed API Client (`src/lib/api-client.ts`) with global Toast notification context
 
 ---
 
 ## 📁 Project Structure
 
 ```text
+├── public/
+│   ├── favicon.ico                         # App favicon
+│   ├── icon.png                            # High-res app icon
+│   └── logo.png                            # Official BizMind brand logo
 ├── src/
 │   ├── app/
 │   │   ├── api/
@@ -154,26 +196,49 @@ BizMind includes an **Interactive Hackathon Demo Journey** banner allowing judge
 │   │   │   ├── outcomes/route.ts           # Outcome evaluation & institutional lesson retention
 │   │   │   ├── timeline/route.ts           # Chronological business timeline events
 │   │   │   └── hindsight/test/route.ts     # Health and bank connectivity check
-│   │   ├── globals.css                     # Tailwind styling & dark mode setup
-│   │   ├── layout.tsx                      # Root layout with fonts & metadata
-│   │   └── page.tsx                        # Main interactive dashboard & 7-step stepper
+│   │   ├── globals.css                     # Nothing OS monochrome theme & Tailwind styling
+│   │   ├── layout.tsx                      # Root layout with brand metadata & ToastProvider
+│   │   └── page.tsx                        # Main application controller, view routing & modal manager
 │   ├── components/
-│   │   ├── AIAnalystChat.tsx               # Chat interface with memory citation pills
+│   │   ├── views/                          # 8 Dedicated Nothing OS Business Modules
+│   │   │   ├── AnalystView.tsx             # Strategic AI conversational analyst
+│   │   │   ├── CompetitiveView.tsx         # Live competitor intelligence & scenario matrix
+│   │   │   ├── DashboardView.tsx           # Executive metrics, charts & active anomalies
+│   │   │   ├── DatasetsView.tsx            # Multi-quarter CSV ingestion & data preview
+│   │   │   ├── DecisionsView.tsx           # Decision governance ledger & outcome validator
+│   │   │   ├── LandingView.tsx             # Immersive full-screen showcase & hero CTA
+│   │   │   ├── LearningView.tsx            # Cross-product elasticity reflection & rules
+│   │   │   ├── MemoryView.tsx              # Hindsight Cloud bank browser & recall tester
+│   │   │   └── TimelineView.tsx            # Chronological business stream
+│   │   ├── AeroShards.tsx                  # WebGPU 3D interactive procedural shards background
+│   │   ├── AeroShards.css                  # AeroShards viewport styling
+│   │   ├── AIAnalystChat.tsx               # Chat component with memory citation pills
 │   │   ├── BusinessOverview.tsx            # KPI metric cards & product performance table
+│   │   ├── CommandCenter.tsx               # Cmd+K / Ctrl+K spotlight launcher
 │   │   ├── CompetitiveAnalysisModal.tsx    # 3 Scenarios, observed competitors & evidence audit modal
 │   │   ├── DatasetUploadModal.tsx          # CSV uploader & one-click demo presets
 │   │   ├── DecisionModal.tsx               # Decision form with target metric & expected growth
+│   │   ├── DecisionTimeline.tsx            # Decision event timeline renderer
 │   │   ├── DemoWalkthroughBanner.tsx       # 7-step interactive hackathon journey banner
 │   │   ├── Header.tsx                      # Brand header with Hindsight bank connectivity badge
+│   │   ├── HelpModal.tsx                   # Keyboard shortcuts & feature guide
+│   │   ├── LaserFlow.tsx                   # Canvas-based laser beam fallback background
 │   │   ├── MemoryEvidenceModal.tsx         # "Why did the AI say this?" Hindsight evidence viewer
 │   │   ├── OutcomeModal.tsx                # Outcome evaluator & lesson capture
-│   │   └── SituationsList.tsx              # Detected business anomalies & crisis cards
+│   │   ├── SettingsModal.tsx               # Active configuration & state reset modal
+│   │   ├── Sidebar.tsx                     # Collapsible Nothing OS navigation sidebar
+│   │   ├── SituationsList.tsx              # Detected business anomalies & crisis cards
+│   │   ├── ThreeMemoryNetwork.tsx          # Three.js / WebGL 3D neural memory graph
+│   │   └── TopNav.tsx                      # Header navigation, live indicators & action buttons
 │   ├── config/
 │   │   └── company.ts                      # Centralized GOAT company configuration & product catalog
+│   ├── contexts/
+│   │   └── ToastContext.tsx                # Global toast notifications context
 │   ├── data/
 │   │   └── sample-datasets.ts              # Synthetic CSV datasets (Dec, Jan, Feb, Mar)
 │   ├── lib/
 │   │   ├── analytics.ts                    # Pure deterministic CSV parser & KPI engine
+│   │   ├── api-client.ts                   # Strongly-typed client abstraction for all endpoints
 │   │   ├── competitive-engine.ts           # Deterministic price gaps, rankings & 3 scenario models
 │   │   ├── competitive-research.ts         # Groq browser search agent & citation parser
 │   │   ├── competitive-service.ts          # Orchestration layer uniting internal data, Hindsight, and web
@@ -182,12 +247,14 @@ BizMind includes an **Interactive Hackathon Demo Journey** banner allowing judge
 │   │   └── hindsight.ts                    # Hindsight service (retain, recall, reflect)
 │   └── types/
 │       ├── business.ts                     # Business decisions, outcomes, KPIs, and situations
-│       └── competitive.ts                  # Scenarios, web evidence, and calculations
+│       ├── competitive.ts                  # Scenarios, web evidence, and calculations
+│       └── index.ts                        # Unified types export
 ├── scripts/
 │   ├── test-backend-flow.ts                # E2E decision loop & Hindsight integration test
 │   ├── test-competitive-flow.ts            # Competitive analysis pipeline test
 │   ├── test-groq.ts                        # Direct Groq connectivity & model test
-│   └── test-hindsight.ts                   # Direct Hindsight API retain/recall/reflect test
+│   ├── test-hindsight.ts                   # Direct Hindsight API retain/recall/reflect test
+│   └── verify-layout.mjs                   # Headless CDP layout verification across viewports
 ├── tests/
 │   ├── business-analyst.test.ts            # Unit tests for CSV parsing, KPIs, and anomaly math
 │   └── competitive-calculations.test.ts    # Unit tests for price deltas, gaps, rankings, and scenarios
@@ -228,6 +295,10 @@ npm run dev
 ```
 Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 
+- **Full-Screen Showcase**: Explore the interactive AeroShards WebGPU hero background and feature walkthrough.
+- **Executive Dashboard**: Click *"Start • Launch Executive Dashboard"* or navigate to `?landing=false`.
+- **Command Center**: Press `Cmd + K` or `Ctrl + K` anytime to open the spotlight action launcher.
+
 ### 3. Production Build
 ```bash
 npm run build
@@ -238,7 +309,7 @@ npm start
 
 ## 🧪 Verification & Test Suite
 
-The project includes 100% automated test coverage across deterministic logic, Hindsight cloud memory, and competitive analysis pipelines:
+The project includes 100% automated test coverage across deterministic logic, Hindsight cloud memory, competitive analysis pipelines, and UI layouts:
 
 ```bash
 # 1. Run all deterministic unit tests (KPIs, anomalies, competitive math, and scenarios)
@@ -253,7 +324,10 @@ npm run test:e2e
 # 4. Run Competitive Impact Analysis flow (Recall + Web Search + 3 Scenarios + Groq)
 npm run test:competitive
 
-# 5. Verify TypeScript type safety
+# 5. Run headless layout verification across multiple screen resolutions (FHD, HD+, MacBook, Laptop, Tablet)
+node scripts/verify-layout.mjs
+
+# 6. Verify TypeScript type safety
 npx tsc --noEmit
 ```
 
@@ -265,3 +339,5 @@ npx tsc --noEmit
 - **Zero Numerical Hallucinations**: Exact company figures and scenario rankings are computed deterministically in code before the LLM ever sees them.
 - **Epistemic Boundaries**: The AI never hallucinates competitor future actions or guarantees financial outcomes; it presents clearly labeled simulation scenarios with explicit assumptions.
 - **Clickable Web Citations**: Real-time competitor pricing gathered via Groq browser search includes live source links for full auditability.
+- **AeroShards WebGPU 3D Engine**: Interactive visual compute background simulation with real-time cursor physics and automatic graceful canvas fallback.
+- **Nothing OS Monochrome Design System**: Purpose-built, distraction-free executive interface engineered for rapid decision-making, deep auditability, and keyboard-first productivity.
