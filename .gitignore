@@ -33,3 +33,6 @@ pnpm-debug.log*
 *.sw?
 .idea/
 .vscode/
+
+# Cloned reference repo
+Frontend-/

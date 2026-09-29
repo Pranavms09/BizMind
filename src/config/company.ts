@@ -72,4 +72,20 @@ export const DEMO_COMPANY: DemoCompanyConfig = {
   ],
 };
 
-export const GOAT_PRODUCTS = DEMO_COMPANY.products.map((p) => p.name);
+export const GOAT_COMPANY = DEMO_COMPANY;
+
+export interface GoatProductItem {
+  id: string;
+  name: string;
+  category: string;
+  baselinePrice: number;
+  typicalPrice: number;
+  description: string;
+}
+
+export const GOAT_PRODUCTS: GoatProductItem[] = DEMO_COMPANY.products.map((p) => ({
+  ...p,
+  typicalPrice: p.baselinePrice,
+}));
+
+export const GOAT_PRODUCT_NAMES: string[] = DEMO_COMPANY.products.map((p) => p.name);

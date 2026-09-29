@@ -57,6 +57,8 @@ export interface BusinessSituation {
   channel?: string;
   detectedIssue: string; // concise description e.g. "Product A revenue dropped 18.2% MoM"
   severity: 'high' | 'medium' | 'low';
+  suggestedAction?: string;
+  affectedMetrics?: Record<string, number>;
 }
 
 export interface BusinessDecision {

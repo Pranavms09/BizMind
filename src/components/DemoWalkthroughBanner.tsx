@@ -3,10 +3,9 @@
 import React from 'react';
 import {
   Play,
-  ArrowRight,
   TrendingDown,
   FileCheck,
-  CheckCircle,
+  CheckCircle2,
   HelpCircle,
   Sparkles,
   Globe,
@@ -26,79 +25,72 @@ export function DemoWalkthroughBanner({
   const steps = [
     {
       num: 1,
-      title: 'Upload Jan Data',
-      subtitle: 'Detect GOAT Rockerz 550 sales decline',
+      title: 'Jan Telemetry',
+      subtitle: 'GOAT Rockerz 550 drop',
       icon: TrendingDown,
     },
     {
       num: 2,
-      title: 'Analyze & Advise',
-      subtitle: 'AI suggests 10% price test',
+      title: 'AI Diagnosis',
+      subtitle: 'Suggest 10% markdown',
       icon: HelpCircle,
     },
     {
       num: 3,
       title: 'Record Decision',
-      subtitle: 'Retain GOAT price cut in Hindsight',
+      subtitle: 'Retain in Hindsight Bank',
       icon: FileCheck,
     },
     {
       num: 4,
-      title: 'Upload Feb Data',
-      subtitle: 'Calculate actual unit & revenue surge',
-      icon: CheckCircle,
+      title: 'Feb Telemetry',
+      subtitle: 'Measure unit & rev surge',
+      icon: CheckCircle2,
     },
     {
       num: 5,
       title: 'Record Outcome',
-      subtitle: 'Retain lesson into GOAT institutional memory',
+      subtitle: 'Compounding memory lesson',
       icon: Sparkles,
     },
     {
       num: 6,
-      title: 'GOAT Airdopes Query',
-      subtitle: 'Recall memories & compare audio tiers',
+      title: 'Airdopes Query',
+      subtitle: 'Recall memories across tiers',
       icon: Play,
     },
     {
       num: 7,
       title: 'Competitive Impact',
-      subtitle: 'Web research boAt/Noise & 3 scenarios',
+      subtitle: 'boAt web search & 3 scenarios',
       icon: Globe,
     },
   ];
 
   return (
-    <div className="bg-gradient-to-r from-slate-900 via-indigo-950/60 to-slate-900 border border-indigo-900/40 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden">
-      {/* Background ambient glow */}
-      <div className="absolute -top-12 -right-12 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 mb-4">
+    <div className="bg-[#121214] border border-white/10 rounded-3xl p-5 shadow-2xl relative overflow-hidden font-mono">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="flex h-2 w-2 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
-            </span>
-            <h2 className="text-sm font-bold uppercase tracking-wider text-cyan-300">
-              Interactive Hackathon Demo Journey
+            <span className="glyph-dot-white" />
+            <h2 className="text-xs font-bold uppercase tracking-wider text-white">
+              Judge Walkthrough: 7-Step Institutional Decision Journey
             </h2>
           </div>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Step through the institutional decision loop from crisis detection to Hindsight memory retrieval.
+          <p className="text-[11px] text-neutral-400 mt-0.5">
+            Step through crisis detection, AI diagnosis, decision logging, outcome learning, and competitive modeling.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-400">Current Phase:</span>
-          <span className="px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 text-xs font-semibold">
-            Step {currentStep} of 7
+          <span className="nothing-tag">
+            Step {currentStep} of 7 Active
           </span>
         </div>
       </div>
 
       {/* Stepper buttons grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
         {steps.map((step) => {
           const Icon = step.icon;
           const isActive = currentStep === step.num;
@@ -109,35 +101,37 @@ export function DemoWalkthroughBanner({
               key={step.num}
               disabled={loading}
               onClick={() => onExecuteStep(step.num)}
-              className={`text-left p-2.5 rounded-xl border transition-all relative flex flex-col justify-between ${
+              className={`text-left p-3 rounded-2xl border transition-all flex flex-col justify-between ${
                 isActive
-                  ? 'bg-indigo-600/30 border-cyan-400 shadow-md shadow-cyan-500/10 ring-1 ring-cyan-400'
+                  ? 'bg-white text-black border-white shadow-lg ring-1 ring-white'
                   : isDone
-                  ? 'bg-slate-800/60 border-slate-700/60 hover:border-slate-600 opacity-90'
-                  : 'bg-slate-900/50 border-slate-800 hover:border-slate-700 opacity-60'
+                  ? 'bg-neutral-900 border-white/20 text-neutral-200 hover:border-white/40'
+                  : 'bg-neutral-950/60 border-white/10 text-neutral-500 hover:border-white/20'
               } ${loading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer active:scale-95'}`}
             >
-              <div className="flex items-center justify-between w-full mb-1">
+              <div className="flex items-center justify-between w-full mb-1.5">
                 <span
-                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                  className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase ${
                     isActive
-                      ? 'bg-cyan-500 text-slate-950'
+                      ? 'bg-black text-white'
                       : isDone
-                      ? 'bg-emerald-500/20 text-emerald-300'
-                      : 'bg-slate-800 text-slate-400'
+                      ? 'bg-white/10 text-white'
+                      : 'bg-white/5 text-neutral-500'
                   }`}
                 >
                   Step {step.num}
                 </span>
                 <Icon
                   className={`w-3.5 h-3.5 ${
-                    isActive ? 'text-cyan-400' : isDone ? 'text-emerald-400' : 'text-slate-500'
+                    isActive ? 'text-black' : isDone ? 'text-white' : 'text-neutral-500'
                   }`}
                 />
               </div>
               <div>
-                <p className="text-xs font-bold text-slate-100 truncate">{step.title}</p>
-                <p className="text-[10px] text-slate-400 line-clamp-1 leading-tight mt-0.5">
+                <p className={`text-xs font-bold truncate ${isActive ? 'text-black' : 'text-white'}`}>
+                  {step.title}
+                </p>
+                <p className={`text-[10px] line-clamp-1 leading-tight mt-0.5 ${isActive ? 'text-neutral-700' : 'text-neutral-400'}`}>
                   {step.subtitle}
                 </p>
               </div>
@@ -148,3 +142,5 @@ export function DemoWalkthroughBanner({
     </div>
   );
 }
+
+export default DemoWalkthroughBanner;

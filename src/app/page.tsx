@@ -1,344 +1,393 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Header } from '@/components/Header';
+import React, { useState, useEffect, useCallback } from 'react';
+import { ToastProvider, useToast } from '@/contexts/ToastContext';
+import { TopNav } from '@/components/TopNav';
+import { Sidebar } from '@/components/Sidebar';
 import { DemoWalkthroughBanner } from '@/components/DemoWalkthroughBanner';
-import { BusinessOverview } from '@/components/BusinessOverview';
-import { SituationsList } from '@/components/SituationsList';
-import { DecisionTimeline } from '@/components/DecisionTimeline';
-import { AIAnalystChat } from '@/components/AIAnalystChat';
+import { CommandCenter } from '@/components/CommandCenter';
+import { SettingsModal } from '@/components/SettingsModal';
+import { HelpModal } from '@/components/HelpModal';
 import { DecisionModal } from '@/components/DecisionModal';
 import { OutcomeModal } from '@/components/OutcomeModal';
-import { MemoryEvidenceModal } from '@/components/MemoryEvidenceModal';
-import { DatasetUploadModal } from '@/components/DatasetUploadModal';
 import { CompetitiveAnalysisModal } from '@/components/CompetitiveAnalysisModal';
-import {
-  DatasetKPIs,
-  BusinessSituation,
-  MemoryEvidenceItem,
-  BusinessDecision,
-  CompetitiveImpactAnalysis,
-} from '@/types/business';
-import { Sparkles, Brain, CheckCircle2, AlertTriangle, Globe } from 'lucide-react';
+import { MemoryEvidenceModal } from '@/components/MemoryEvidenceModal';
 
-export default function DashboardPage() {
-  const [kpis, setKpis] = useState<DatasetKPIs | null>(null);
-  const [datasetLabel, setDatasetLabel] = useState<string>('');
-  const [situations, setSituations] = useState<BusinessSituation[]>([]);
-  const [activeProduct, setActiveProduct] = useState<string>('Product A');
+// Views
+import { LandingView } from '@/components/views/LandingView';
+import { DashboardView } from '@/components/views/DashboardView';
+import { AnalystView } from '@/components/views/AnalystView';
+import { CompetitiveView } from '@/components/views/CompetitiveView';
+import { DatasetsView } from '@/components/views/DatasetsView';
+import { DecisionsView } from '@/components/views/DecisionsView';
+import { MemoryView } from '@/components/views/MemoryView';
+import { LearningView } from '@/components/views/LearningView';
+import { TimelineView } from '@/components/views/TimelineView';
+
+// Types & API
+import { BusinessSituation, MemoryEvidenceItem, BusinessDecision } from '@/types/business';
+import { CompetitiveImpactAnalysis } from '@/types/competitive';
+import { datasetsApi, decisionsApi } from '@/lib/api-client';
+
+function AppContent() {
+  const { showToast } = useToast();
+
+  // Navigation state
+  const [activeTab, setActiveTab] = useState<string>('dashboard');
+  const [showLanding, setShowLanding] = useState<boolean>(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
+  const [mobileOpen, setMobileOpen] = useState<boolean>(false);
 
   // Modals state
+  const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+
   const [isDecisionModalOpen, setIsDecisionModalOpen] = useState(false);
-  const [selectedSituation, setSelectedSituation] = useState<BusinessSituation | null>(null);
+  const [decisionSituation, setDecisionSituation] = useState<BusinessSituation | null>(null);
 
   const [isOutcomeModalOpen, setIsOutcomeModalOpen] = useState(false);
   const [outcomeCandidate, setOutcomeCandidate] = useState<any>(null);
+
+  const [isCompetitiveModalOpen, setIsCompetitiveModalOpen] = useState(false);
+  const [competitiveData, setCompetitiveData] = useState<CompetitiveImpactAnalysis | null>(null);
+  const [competitiveLoading, setCompetitiveLoading] = useState(false);
 
   const [isEvidenceModalOpen, setIsEvidenceModalOpen] = useState(false);
   const [evidenceItems, setEvidenceItems] = useState<MemoryEvidenceItem[]>([]);
   const [evidenceQueryTitle, setEvidenceQueryTitle] = useState<string>('');
 
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  // Demo Walkthrough Stepper State
+  const [demoStep, setDemoStep] = useState<number>(1);
+  const [demoLoading, setDemoLoading] = useState<boolean>(false);
 
-  // Competitive Analysis modal state
-  const [isCompetitiveModalOpen, setIsCompetitiveModalOpen] = useState(false);
-  const [competitiveData, setCompetitiveData] = useState<CompetitiveImpactAnalysis | null>(null);
-  const [competitiveLoading, setCompetitiveLoading] = useState(false);
-
-  // Demo walkthrough stepper state
-  const [demoStep, setDemoStep] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [refreshTimeline, setRefreshTimeline] = useState(0);
-
-  // Chat external prompt prefill
-  const [chatPrompt, setChatPrompt] = useState<{ prompt: string; product: string } | null>(null);
-
-  // Initial load
+  // Keybindings (Cmd+K / Ctrl+K)
   useEffect(() => {
-    fetch('/api/datasets')
-      .then((res) => res.json())
-      .then((data) => {
-        const datasets = data.datasets || {};
-        const labels = Object.keys(datasets);
-        if (labels.length > 0) {
-          const latest = datasets[labels[labels.length - 1]];
-          setKpis(latest.kpis);
-          setDatasetLabel(latest.label);
-          setSituations(latest.situations || []);
-        } else {
-          // If empty, auto-bootstrap Step 1 (December baseline + January data)
-          executeDemoStep(1);
-        }
-      })
-      .catch((err) => console.warn('Dataset load error:', err));
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsCommandCenterOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  async function executeDemoStep(stepNum: number) {
-    setLoading(true);
-    try {
-      if (stepNum === 1) {
-        // Step 1: Upload December baseline then January data to detect crisis
-        await fetch('/api/datasets', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ preset: 'december', label: 'December 2025' }),
-        });
+  // Demo Step Execution for Hackathon Walkthrough
+  const executeDemoStep = useCallback(
+    async (stepNum: number) => {
+      setDemoLoading(true);
+      setDemoStep(stepNum);
 
-        const janRes = await fetch('/api/datasets', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            preset: 'january',
-            label: 'January 2026',
-            previousLabel: 'December 2025',
-          }),
-        });
-        const janData = await janRes.json();
-        setKpis(janData.kpis);
-        setDatasetLabel(janData.label);
-        setSituations(janData.situations || []);
-        setActiveProduct('GOAT Rockerz 550');
-        setDemoStep(1);
-      } else if (stepNum === 2) {
-        // Step 2: Trigger AI analysis on GOAT Rockerz 550 decline
-        setDemoStep(2);
-        setChatPrompt({
-          prompt:
-            'GOAT Rockerz 550 sales dropped in January due to aggressive competitor discounts. What is happening, and what strategy should we consider?',
-          product: 'GOAT Rockerz 550',
-        });
-      } else if (stepNum === 3) {
-        // Step 3: Open Decision Modal to record 10% price reduction
-        setDemoStep(3);
-        setSelectedSituation(
-          situations.find((s) => s.product === 'GOAT Rockerz 550') || {
-            id: 'sit-goat-rockerz-jan',
-            date: '2026-01-15',
-            metric: 'revenue',
-            currentValue: 419720,
-            previousValue: 554630,
-            changePercent: -24.3,
-            product: 'GOAT Rockerz 550',
-            detectedIssue: 'GOAT Rockerz 550 revenue declined 24.3% in January 2026.',
-            severity: 'high',
+      try {
+        if (stepNum === 1) {
+          showToast('Step 1: Ingesting December baseline and January sales drop...', 'info');
+          await datasetsApi.loadDemoDataset('december');
+          await datasetsApi.loadDemoDataset('january');
+          setActiveTab('dashboard');
+          showToast('Step 1 complete: January deficit detected in GOAT Rockerz 550.', 'success');
+        } else if (stepNum === 2) {
+          showToast('Step 2: Switching to AI Business Analyst for diagnostic query...', 'info');
+          setActiveTab('analyst');
+          showToast('Step 2 ready: Ask "Why did GOAT Rockerz 550 sales drop in January?"', 'success');
+        } else if (stepNum === 3) {
+          showToast('Step 3: Running live competitive impact analysis...', 'info');
+          setActiveTab('competitive');
+          setCompetitiveLoading(true);
+          try {
+            const res = await fetch('/api/competitive-analysis', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                product: 'GOAT Rockerz 550',
+                currentPrice: 1499,
+                proposedPrice: 1349,
+              }),
+            });
+            const data = await res.json();
+            if (data.analysis) {
+              setCompetitiveData(data.analysis);
+              setIsCompetitiveModalOpen(true);
+            }
+          } finally {
+            setCompetitiveLoading(false);
           }
-        );
-        setIsDecisionModalOpen(true);
-      } else if (stepNum === 4) {
-        // Step 4: Upload February data and calculate actual revenue surge
-        const febRes = await fetch('/api/datasets', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            preset: 'february',
-            label: 'February 2026',
-            previousLabel: 'January 2026',
-          }),
-        });
-        const febData = await febRes.json();
-        setKpis(febData.kpis);
-        setDatasetLabel(febData.label);
-        setSituations(febData.situations || []);
-        setDemoStep(4);
+          showToast('Step 3 complete: Modeled 3 competitor response scenarios (boAt, Noise).', 'success');
+        } else if (stepNum === 4) {
+          showToast('Step 4: Opening Decision Center to formulate hypothesis...', 'info');
+          setDecisionSituation({
+            id: 'sit-step-4',
+            detectedIssue: 'GOAT Rockerz 550 sales velocity deficit in January',
+            product: 'GOAT Rockerz 550',
+            metric: 'quantity',
+            currentValue: 280,
+            previousValue: 370,
+            changePercent: -24.3,
+            severity: 'high',
+            date: '2026-01-20',
+            suggestedAction: 'Reduce price by 10% (₹1,499 to ₹1,349)',
+            affectedMetrics: { revenueGrowth: -24.3, volumeGrowth: -22.1 },
+          });
+          setIsDecisionModalOpen(true);
+        } else if (stepNum === 5) {
+          showToast('Step 5: Ingesting February recovery telemetry...', 'info');
+          await datasetsApi.loadDemoDataset('february');
+          setActiveTab('dashboard');
+          showToast('Step 5 complete: February data shows +37.6% unit volume surge!', 'success');
+        } else if (stepNum === 6) {
+          showToast('Step 6: Recording empirical outcome and syncing to Hindsight...', 'info');
+          const decisions = await decisionsApi.getDecisions();
+          const targetDec = decisions[0] || {
+            id: 'dec-1',
+            action: 'Reduce GOAT Rockerz 550 price by 10%',
+            reason: 'Counter boAt discounting',
+            expectedGrowthPercent: 15,
+            expectedOutcome: '+15% unit sales growth',
+            affectedProduct: 'GOAT Rockerz 550',
+            affectedMetric: 'quantity',
+            status: 'pending',
+            date: '2026-01-20',
+            createdAt: '2026-01-20T10:00:00Z',
+          };
 
-        if (febData.outcomeCandidates && febData.outcomeCandidates.length > 0) {
-          setOutcomeCandidate(febData.outcomeCandidates[0]);
-        }
-      } else if (stepNum === 5) {
-        // Step 5: Open Outcome Modal to retain lesson in Hindsight
-        setDemoStep(5);
-        if (!outcomeCandidate) {
-          // Fallback candidate if not populated from step 4
           setOutcomeCandidate({
-            decision: {
-              id: 'dec-step-3',
-              action: 'Reduce GOAT Rockerz 550 price by 10% (from ₹1,499 to ₹1,349)',
-              reason: 'Counter competitor discounting by boAt and Noise',
-              expectedOutcome: '+15% unit sales growth',
-              expectedGrowthPercent: 15,
-            },
+            decision: targetDec,
             currentPeriod: 'February 2026',
             product: 'GOAT Rockerz 550',
-            metric: 'revenue',
+            metric: 'Revenue',
             previousValue: 419720,
             actualValue: 577372,
             actualChangePercent: 37.6,
             expectedChangePercent: 15,
           });
+          setIsOutcomeModalOpen(true);
+        } else if (stepNum === 7) {
+          showToast('Step 7: Ingesting March telemetry and analyzing with retained Hindsight memory...', 'info');
+          await datasetsApi.loadDemoDataset('march');
+          setActiveTab('analyst');
+          showToast('Step 7 complete: Hindsight institutional recall active for March planning!', 'success');
         }
-        setIsOutcomeModalOpen(true);
-      } else if (stepNum === 6) {
-        // Step 6: Ingest March data (GOAT Airdopes 141) and ask: "Should GOAT reduce price?"
-        const marRes = await fetch('/api/datasets', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            preset: 'march',
-            label: 'March 2026',
-            previousLabel: 'February 2026',
-          }),
-        });
-        const marData = await marRes.json();
-        setKpis(marData.kpis);
-        setDatasetLabel(marData.label);
-        setSituations(marData.situations || []);
-        setActiveProduct('GOAT Airdopes 141');
-        setDemoStep(6);
-
-        setChatPrompt({
-          prompt:
-            "Should GOAT reduce the price of GOAT Airdopes 141? What did we learn from our previous pricing experiments on GOAT Rockerz 550?",
-          product: 'GOAT Airdopes 141',
-        });
-      } else if (stepNum === 7) {
-        // Step 7: Competitive Impact Analysis on GOAT Rockerz 550 (from ₹1,499 to ₹1,349, -10%)
-        setDemoStep(7);
-        setActiveProduct('GOAT Rockerz 550');
-        setIsCompetitiveModalOpen(true);
-        setCompetitiveLoading(true);
-        try {
-          const res = await fetch('/api/competitive-analysis', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              product: 'GOAT Rockerz 550',
-              currentPrice: 1499,
-              proposedPrice: 1349,
-            }),
-          });
-          const data = await res.json();
-          if (data.analysis) {
-            setCompetitiveData(data.analysis);
-          }
-        } catch (compErr) {
-          console.error('Step 7 competitive analysis error:', compErr);
-        } finally {
-          setCompetitiveLoading(false);
-        }
+      } catch (err: any) {
+        showToast(err.message || 'Error executing demo step', 'error');
+      } finally {
+        setDemoLoading(false);
       }
-    } catch (err) {
-      console.error('Demo step failed:', err);
-    } finally {
-      setLoading(false);
-      setRefreshTimeline((prev) => prev + 1);
-    }
-  }
+    },
+    [showToast]
+  );
 
-  function handleResetDemo() {
-    setLoading(true);
-    fetch('/api/timeline', { method: 'POST' }).catch(() => {});
-    executeDemoStep(1);
-  }
+  const handleResetDemo = useCallback(async () => {
+    try {
+      showToast('Resetting demo environment to clean baseline...', 'info');
+      await datasetsApi.clearAllDatasets();
+      await datasetsApi.loadDemoDataset('december');
+      await datasetsApi.loadDemoDataset('january');
+      setDemoStep(1);
+      setActiveTab('dashboard');
+      showToast('GOAT environment reset to Step 1 baseline.', 'success');
+    } catch {
+      showToast('Failed to reset demo', 'error');
+    }
+  }, [showToast]);
+
+  const handleOpenDecisionModal = useCallback(() => {
+    setDecisionSituation(null);
+    setIsDecisionModalOpen(true);
+  }, []);
+
+  const handleOpenOutcomeModal = useCallback(async (decisionId?: string) => {
+    try {
+      const decisions = await decisionsApi.getDecisions();
+      const match = decisionId ? decisions.find((d) => d.id === decisionId) : decisions[0];
+      if (match) {
+        setOutcomeCandidate({
+          decision: match,
+          currentPeriod: 'February 2026',
+          product: match.affectedProduct || 'GOAT Rockerz 550',
+          metric: 'Revenue',
+          previousValue: 419720,
+          actualValue: 577372,
+          actualChangePercent: 37.6,
+          expectedChangePercent: match.expectedGrowthPercent || 15,
+        });
+        setIsOutcomeModalOpen(true);
+      } else {
+        showToast('No active decisions to evaluate. Create a decision first.', 'info');
+      }
+    } catch {
+      showToast('Failed to prepare outcome evaluation', 'error');
+    }
+  }, [showToast]);
+
+  const handleOpenCompetitiveModal = useCallback(() => {
+    setCompetitiveData(null);
+    setIsCompetitiveModalOpen(true);
+  }, []);
+
+  const handleViewEvidence = useCallback((evidence: any[], title: string) => {
+    setEvidenceItems(evidence);
+    setEvidenceQueryTitle(title);
+    setIsEvidenceModalOpen(true);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col">
-      {/* Top Header */}
-      <Header
-        onOpenUpload={() => setIsUploadModalOpen(true)}
-        onResetDemo={handleResetDemo}
+    <div className="flex h-screen bg-[#000000] text-white overflow-hidden font-sans selection:bg-pink-500 selection:text-white">
+      {/* Nothing OS Collapsible Sidebar */}
+      <Sidebar
+        activeTab={activeTab}
+        onSelectTab={(tab) => {
+          setShowLanding(false);
+          setActiveTab(tab);
+        }}
+        collapsed={sidebarCollapsed}
+        setCollapsed={setSidebarCollapsed}
+        mobileOpen={mobileOpen}
+        setMobileOpen={setMobileOpen}
+        onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenHelp={() => setIsHelpOpen(true)}
+        onToggleLanding={() => setShowLanding((prev) => !prev)}
       />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
-        {/* Hackathon Stepper Banner */}
-        <DemoWalkthroughBanner
-          currentStep={demoStep}
-          onExecuteStep={executeDemoStep}
-          loading={loading}
+      {/* Main Content Pane */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        {/* Top Navbar */}
+        <TopNav
+          activeTab={showLanding ? 'landing' : activeTab}
+          onSelectTab={(tab) => {
+            setShowLanding(false);
+            setActiveTab(tab);
+          }}
+          onOpenCommandCenter={() => setIsCommandCenterOpen(true)}
+          onOpenMobileMenu={() => setMobileOpen(true)}
+          onOpenDecisionModal={handleOpenDecisionModal}
+          onResetDemo={handleResetDemo}
+          onOpenCompetitiveModal={handleOpenCompetitiveModal}
         />
 
-        {/* Detected Situations Banner (if any) */}
-        {situations.length > 0 && (
-          <SituationsList
-            situations={situations}
-            onOpenDecisionModal={(sit) => {
-              setSelectedSituation(sit);
-              setIsDecisionModalOpen(true);
-            }}
-            onAskAI={(prompt, prod) => {
-              setChatPrompt({ prompt, product: prod });
-            }}
-          />
-        )}
-
-        {/* Main 2-Column Split: Analytics Dashboard vs AI Analyst */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Column: Deterministic Business Overview & Memory Timeline (7 Cols) */}
-          <div className="lg:col-span-7 space-y-6">
-            <BusinessOverview kpis={kpis} datasetLabel={datasetLabel} />
-            <DecisionTimeline refreshTrigger={refreshTimeline} />
-          </div>
-
-          {/* Right Column: AI Decision Analyst Chat with Recall & Reflect (5 Cols) */}
-          <div className="lg:col-span-5 sticky top-24">
-            <AIAnalystChat
-              activeProduct={activeProduct}
-              externalPrompt={chatPrompt}
-              onViewEvidence={(evidence, title) => {
-                setEvidenceItems(evidence);
-                setEvidenceQueryTitle(title);
-                setIsEvidenceModalOpen(true);
-              }}
-              onOpenCompetitiveAnalysis={(analysis) => {
-                setCompetitiveData(analysis);
-                setIsCompetitiveModalOpen(true);
+        {/* Scrollable View Area */}
+        <div className="flex-1 overflow-y-auto nothing-dots relative z-10 p-4 sm:p-6 lg:p-8">
+          {showLanding ? (
+            <LandingView
+              onEnterDashboard={(targetTab = 'dashboard') => {
+                setShowLanding(false);
+                setActiveTab(targetTab);
               }}
             />
-          </div>
-        </div>
-      </main>
+          ) : (
+            <div className="max-w-7xl mx-auto space-y-6">
+              {/* Demo Stepper for Hackathon Evaluation */}
+              <DemoWalkthroughBanner
+                currentStep={demoStep}
+                onExecuteStep={executeDemoStep}
+                loading={demoLoading}
+              />
 
-      {/* Decision Modal */}
-      <DecisionModal
-        isOpen={isDecisionModalOpen}
-        onClose={() => setIsDecisionModalOpen(false)}
-        situation={selectedSituation}
-        onDecisionCreated={() => {
-          setRefreshTimeline((prev) => prev + 1);
-          setDemoStep(4);
+              {/* View Router */}
+              {activeTab === 'dashboard' && (
+                <DashboardView
+                  onSelectTab={(tab) => setActiveTab(tab)}
+                  onOpenDecisionModal={handleOpenDecisionModal}
+                  onOpenCompetitiveModal={handleOpenCompetitiveModal}
+                />
+              )}
+
+              {activeTab === 'analyst' && (
+                <AnalystView
+                  onOpenDecisionModal={handleOpenDecisionModal}
+                  onOpenCompetitiveModal={handleOpenCompetitiveModal}
+                  onViewEvidence={handleViewEvidence}
+                />
+              )}
+
+              {activeTab === 'competitive' && (
+                <CompetitiveView onOpenDecisionModal={handleOpenDecisionModal} />
+              )}
+
+              {activeTab === 'datasets' && <DatasetsView />}
+
+              {activeTab === 'decisions' && (
+                <DecisionsView
+                  onOpenCreateModal={handleOpenDecisionModal}
+                  onOpenOutcomeModal={(id) => handleOpenOutcomeModal(id)}
+                />
+              )}
+
+              {activeTab === 'memory' && <MemoryView />}
+
+              {activeTab === 'learning' && <LearningView />}
+
+              {activeTab === 'timeline' && <TimelineView />}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* GLOBAL MODALS */}
+      <CommandCenter
+        isOpen={isCommandCenterOpen}
+        onClose={() => setIsCommandCenterOpen(false)}
+        onSelectTab={(tab) => {
+          setShowLanding(false);
+          setActiveTab(tab);
         }}
       />
 
-      {/* Outcome Modal */}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        onResetDemo={handleResetDemo}
+      />
+
+      <HelpModal
+        isOpen={isHelpOpen}
+        onClose={() => setIsHelpOpen(false)}
+        onSelectTab={(tab) => {
+          setShowLanding(false);
+          setActiveTab(tab);
+        }}
+      />
+
+      <DecisionModal
+        isOpen={isDecisionModalOpen}
+        onClose={() => setIsDecisionModalOpen(false)}
+        situation={decisionSituation}
+        onDecisionCreated={() => {
+          setIsDecisionModalOpen(false);
+          showToast('Decision recorded and synced with Hindsight Memory.', 'success');
+        }}
+      />
+
       <OutcomeModal
         isOpen={isOutcomeModalOpen}
         onClose={() => setIsOutcomeModalOpen(false)}
         candidate={outcomeCandidate}
         onOutcomeRecorded={() => {
-          setRefreshTimeline((prev) => prev + 1);
-          setDemoStep(6);
+          setIsOutcomeModalOpen(false);
+          showToast('Outcome measured and institutional lesson synthesized in Hindsight.', 'success');
         }}
       />
 
-      {/* Memory Evidence Modal ("Why did the AI say this?") */}
-      <MemoryEvidenceModal
-        isOpen={isEvidenceModalOpen}
-        onClose={() => setIsEvidenceModalOpen(false)}
-        evidence={evidenceItems}
-        queryTitle={evidenceQueryTitle}
-      />
-
-      {/* Dataset Upload Modal */}
-      <DatasetUploadModal
-        isOpen={isUploadModalOpen}
-        onClose={() => setIsUploadModalOpen(false)}
-        onDatasetUploaded={(data) => {
-          setKpis(data.kpis);
-          setDatasetLabel(data.label);
-          setSituations(data.situations || []);
-          if (data.outcomeCandidates && data.outcomeCandidates.length > 0) {
-            setOutcomeCandidate(data.outcomeCandidates[0]);
-          }
-          setRefreshTimeline((prev) => prev + 1);
-        }}
-      />
-
-      {/* Competitive Impact Analysis Modal */}
       <CompetitiveAnalysisModal
         isOpen={isCompetitiveModalOpen}
         onClose={() => setIsCompetitiveModalOpen(false)}
         analysis={competitiveData}
         loading={competitiveLoading}
       />
+
+      <MemoryEvidenceModal
+        isOpen={isEvidenceModalOpen}
+        onClose={() => setIsEvidenceModalOpen(false)}
+        evidence={evidenceItems}
+        queryTitle={evidenceQueryTitle}
+      />
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <ToastProvider>
+      <AppContent />
+    </ToastProvider>
   );
 }
