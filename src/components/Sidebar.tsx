@@ -173,7 +173,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className={`w-full flex items-center px-3 py-2 rounded-lg text-xs font-mono text-neutral-400 hover:text-white hover:bg-white/5 transition-colors ${
                 collapsed ? 'justify-center' : 'justify-between'
               }`}
-              title="View Hero & LaserFlow"
+              title="View Hero & LaserFlow Landing Page"
+              id="sidebar-hero-showcase-btn"
             >
               <div className="flex items-center space-x-2">
                 <Sparkles className="w-4 h-4 text-pink-400" />

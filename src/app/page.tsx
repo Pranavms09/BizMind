@@ -32,11 +32,34 @@ import { datasetsApi, decisionsApi } from '@/lib/api-client';
 function AppContent() {
   const { showToast } = useToast();
 
-  // Navigation state
+  // Navigation state - defaults to true so Hero Section is shown first
   const [activeTab, setActiveTab] = useState<string>('dashboard');
-  const [showLanding, setShowLanding] = useState<boolean>(false);
+  const [showLanding, setShowLanding] = useState<boolean>(true);
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
   const [mobileOpen, setMobileOpen] = useState<boolean>(false);
+
+  const handleEnterDashboard = useCallback(
+    (targetTab: string = 'dashboard') => {
+      setShowLanding(false);
+      setActiveTab(targetTab);
+      if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('landing');
+        url.searchParams.set('tab', targetTab);
+        window.history.pushState({}, '', url.toString());
+      }
+    },
+    []
+  );
+
+  const handleOpenLanding = useCallback(() => {
+    setShowLanding(true);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('landing', 'true');
+      window.history.pushState({}, '', url.toString());
+    }
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -44,11 +67,33 @@ function AppContent() {
       const tabParam = params.get('tab');
       if (tabParam) {
         setActiveTab(tabParam);
+        setShowLanding(false);
       }
       if (params.get('landing') === 'true') {
         setShowLanding(true);
+      } else if (params.get('landing') === 'false') {
+        setShowLanding(false);
       }
     }
+
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('landing') === 'true') {
+        setShowLanding(true);
+      } else {
+        const tabParam = params.get('tab');
+        if (tabParam) {
+          setActiveTab(tabParam);
+          setShowLanding(false);
+        } else if (params.get('landing') === 'false') {
+          setShowLanding(false);
+        } else {
+          setShowLanding(true);
+        }
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   // Modals state
@@ -243,13 +288,44 @@ function AppContent() {
     setIsEvidenceModalOpen(true);
   }, []);
 
+  // When Hero / Landing mode is active, render full-screen LandingView (no sidebar or dashboard headers)
+  if (showLanding) {
+    return (
+      <div className="min-h-screen w-full bg-[#070709] text-white selection:bg-pink-500 selection:text-white">
+        <LandingView onEnterDashboard={handleEnterDashboard} />
+
+        {/* Global Modals triggered by shortcuts */}
+        <CommandCenter
+          isOpen={isCommandCenterOpen}
+          onClose={() => setIsCommandCenterOpen(false)}
+          onSelectTab={(tab) => {
+            handleEnterDashboard(tab);
+          }}
+        />
+
+        <SettingsModal
+          isOpen={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
+          onResetDemo={handleResetDemo}
+        />
+
+        <HelpModal
+          isOpen={isHelpOpen}
+          onClose={() => setIsHelpOpen(false)}
+          onSelectTab={(tab) => {
+            handleEnterDashboard(tab);
+          }}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-screen w-full bg-[#000000] text-white overflow-hidden font-sans selection:bg-pink-500 selection:text-white">
       {/* Nothing OS Collapsible Sidebar */}
       <Sidebar
         activeTab={activeTab}
         onSelectTab={(tab) => {
-          setShowLanding(false);
           setActiveTab(tab);
         }}
         collapsed={sidebarCollapsed}
@@ -258,16 +334,15 @@ function AppContent() {
         setMobileOpen={setMobileOpen}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenHelp={() => setIsHelpOpen(true)}
-        onToggleLanding={() => setShowLanding((prev) => !prev)}
+        onToggleLanding={handleOpenLanding}
       />
 
       {/* Main Content Pane */}
       <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden relative">
         {/* Top Navbar */}
         <TopNav
-          activeTab={showLanding ? 'landing' : activeTab}
+          activeTab={activeTab}
           onSelectTab={(tab) => {
-            setShowLanding(false);
             setActiveTab(tab);
           }}
           onOpenCommandCenter={() => setIsCommandCenterOpen(true)}
@@ -275,63 +350,55 @@ function AppContent() {
           onOpenDecisionModal={handleOpenDecisionModal}
           onResetDemo={handleResetDemo}
           onOpenCompetitiveModal={handleOpenCompetitiveModal}
+          onOpenLanding={handleOpenLanding}
         />
 
         {/* Scrollable View Area */}
-        <main className={`flex-1 overflow-y-auto overflow-x-hidden nothing-dots relative z-10 ${showLanding ? 'p-0' : 'p-4 sm:p-6 lg:p-8'}`}>
-          {showLanding ? (
-            <LandingView
-              onEnterDashboard={(targetTab = 'dashboard') => {
-                setShowLanding(false);
-                setActiveTab(targetTab);
-              }}
+        <main className="flex-1 overflow-y-auto overflow-x-hidden nothing-dots relative z-10 p-4 sm:p-6 lg:p-8">
+          <div className="max-w-7xl mx-auto space-y-6 w-full min-w-0">
+            {/* Demo Stepper for Hackathon Evaluation */}
+            <DemoWalkthroughBanner
+              currentStep={demoStep}
+              onExecuteStep={executeDemoStep}
+              loading={demoLoading}
             />
-          ) : (
-            <div className="max-w-7xl mx-auto space-y-6 w-full min-w-0">
-              {/* Demo Stepper for Hackathon Evaluation */}
-              <DemoWalkthroughBanner
-                currentStep={demoStep}
-                onExecuteStep={executeDemoStep}
-                loading={demoLoading}
+
+            {/* View Router */}
+            {activeTab === 'dashboard' && (
+              <DashboardView
+                onSelectTab={(tab) => setActiveTab(tab)}
+                onOpenDecisionModal={handleOpenDecisionModal}
+                onOpenCompetitiveModal={handleOpenCompetitiveModal}
               />
+            )}
 
-              {/* View Router */}
-              {activeTab === 'dashboard' && (
-                <DashboardView
-                  onSelectTab={(tab) => setActiveTab(tab)}
-                  onOpenDecisionModal={handleOpenDecisionModal}
-                  onOpenCompetitiveModal={handleOpenCompetitiveModal}
-                />
-              )}
+            {activeTab === 'analyst' && (
+              <AnalystView
+                onOpenDecisionModal={handleOpenDecisionModal}
+                onOpenCompetitiveModal={handleOpenCompetitiveModal}
+                onViewEvidence={handleViewEvidence}
+              />
+            )}
 
-              {activeTab === 'analyst' && (
-                <AnalystView
-                  onOpenDecisionModal={handleOpenDecisionModal}
-                  onOpenCompetitiveModal={handleOpenCompetitiveModal}
-                  onViewEvidence={handleViewEvidence}
-                />
-              )}
+            {activeTab === 'competitive' && (
+              <CompetitiveView onOpenDecisionModal={handleOpenDecisionModal} />
+            )}
 
-              {activeTab === 'competitive' && (
-                <CompetitiveView onOpenDecisionModal={handleOpenDecisionModal} />
-              )}
+            {activeTab === 'datasets' && <DatasetsView />}
 
-              {activeTab === 'datasets' && <DatasetsView />}
+            {activeTab === 'decisions' && (
+              <DecisionsView
+                onOpenCreateModal={handleOpenDecisionModal}
+                onOpenOutcomeModal={(id) => handleOpenOutcomeModal(id)}
+              />
+            )}
 
-              {activeTab === 'decisions' && (
-                <DecisionsView
-                  onOpenCreateModal={handleOpenDecisionModal}
-                  onOpenOutcomeModal={(id) => handleOpenOutcomeModal(id)}
-                />
-              )}
+            {activeTab === 'memory' && <MemoryView />}
 
-              {activeTab === 'memory' && <MemoryView />}
+            {activeTab === 'learning' && <LearningView />}
 
-              {activeTab === 'learning' && <LearningView />}
-
-              {activeTab === 'timeline' && <TimelineView />}
-            </div>
-          )}
+            {activeTab === 'timeline' && <TimelineView />}
+          </div>
         </main>
       </div>
 
@@ -340,7 +407,6 @@ function AppContent() {
         isOpen={isCommandCenterOpen}
         onClose={() => setIsCommandCenterOpen(false)}
         onSelectTab={(tab) => {
-          setShowLanding(false);
           setActiveTab(tab);
         }}
       />

@@ -22,6 +22,7 @@ interface TopNavProps {
   onOpenDecisionModal?: () => void;
   onResetDemo?: () => void;
   onOpenCompetitiveModal?: () => void;
+  onOpenLanding?: () => void;
 }
 
 export const TopNav: React.FC<TopNavProps> = ({
@@ -32,6 +33,7 @@ export const TopNav: React.FC<TopNavProps> = ({
   onOpenDecisionModal,
   onResetDemo,
   onOpenCompetitiveModal,
+  onOpenLanding,
 }) => {
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [activeDataset, setActiveDataset] = useState<Dataset | null>(null);
@@ -97,7 +99,7 @@ export const TopNav: React.FC<TopNavProps> = ({
           <div className="w-5 h-5 rounded-md bg-neutral-900 border border-white/10 flex items-center justify-center overflow-hidden p-0.5 shrink-0">
             <img src="/logo.png" alt="BizMind" className="w-full h-full object-contain" />
           </div>
-          <h1 className="text-sm md:text-base font-bold text-white tracking-wider font-mono uppercase">
+          <h1 className="text-sm md:text-base font-bold text-white tracking-wider font-sans uppercase">
             {getPageTitle()}
           </h1>
           <span className="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-white/5 text-neutral-300 border border-white/10">
@@ -132,6 +134,19 @@ export const TopNav: React.FC<TopNavProps> = ({
             ⌘K
           </kbd>
         </button>
+
+        {/* Hero / Landing Page Quick Action */}
+        {onOpenLanding && (
+          <button
+            onClick={onOpenLanding}
+            className="hidden sm:inline-flex btn-nothing-outline text-xs py-1.5 px-3 font-mono uppercase tracking-wider items-center group"
+            title="Return to Hero Landing Showcase"
+            id="topnav-hero-page-btn"
+          >
+            <Sparkles className="w-3.5 h-3.5 mr-1 text-pink-400 group-hover:rotate-12 transition-transform" />
+            <span className="hidden xl:inline">Hero Page</span>
+          </button>
+        )}
 
         {/* Competitive Impact Quick Action */}
         {onOpenCompetitiveModal && (

@@ -48,8 +48,9 @@ const config: Config = {
         danger: '#EF4444',
       },
       fontFamily: {
-        sans: ['"Space Grotesk"', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        mono: ['"Space Mono"', '"JetBrains Mono"', 'monospace'],
+        sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+        mono: ['"JetBrains Mono"', '"Space Mono"', 'monospace'],
         ndot: ['"Space Mono"', 'monospace'],
       },
       borderRadius: {
