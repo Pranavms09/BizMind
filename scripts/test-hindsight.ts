@@ -54,13 +54,13 @@ async function main() {
 
   // 3. Test Retain
   const testMemoryContent =
-    'Product A sales declined 18% in January. The manager reduced Product A\'s price by 10% because competitors were offering lower prices. The expected outcome was a 15% increase in units sold.';
+    'GOAT Rockerz 550 sales declined in January under aggressive competitor discounting by boAt and Noise. GOAT reduced Rockerz 550 price by 10% from ₹1,499 to ₹1,349. The expected outcome was a 15% increase in units sold.';
   
   console.log('\n[3/5] Testing Hindsight retain()...');
   try {
     const retainResult = await client.retain(bankId, testMemoryContent, {
-      context: 'Historical pricing experiment for Product A',
-      tags: ['product:Product A', 'type:decision', 'category:pricing'],
+      context: 'Historical pricing experiment for GOAT Rockerz 550',
+      tags: ['product:goat_rockerz_550', 'type:decision', 'category:pricing'],
     });
     console.log('✓ Retain completed successfully.');
   } catch (err: any) {
@@ -69,7 +69,7 @@ async function main() {
   }
 
   // 4. Test Recall
-  const recallQuery = "What happened previously when we changed Product A's price?";
+  const recallQuery = "What happened previously when GOAT changed the Rockerz 550 price?";
   console.log(`\n[4/5] Testing Hindsight recall() with query: "${recallQuery}"...`);
   try {
     const recallResult = await client.recall(bankId, recallQuery);
@@ -84,7 +84,7 @@ async function main() {
 
   // 5. Test Reflect
   const reflectQuery =
-    'Based on previous pricing decisions, what should we consider before changing Product B\'s price?';
+    'Based on previous pricing decisions, what should GOAT consider before changing the price of GOAT Airdopes 141?';
   console.log(`\n[5/5] Testing Hindsight reflect() with query: "${reflectQuery}"...`);
   try {
     const reflectResult = await client.reflect(bankId, reflectQuery, {

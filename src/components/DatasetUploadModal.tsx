@@ -127,7 +127,7 @@ export function DatasetUploadModal({
                 className="p-2 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 text-left text-xs transition-colors"
               >
                 <p className="font-bold text-slate-200">Dec 2025</p>
-                <p className="text-[10px] text-slate-400">Baseline operations</p>
+                <p className="text-[10px] text-slate-400">Baseline audio operations</p>
               </button>
               <button
                 type="button"
@@ -136,7 +136,7 @@ export function DatasetUploadModal({
                 className="p-2 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 text-left text-xs transition-colors"
               >
                 <p className="font-bold text-rose-400">Jan 2026 (Crisis)</p>
-                <p className="text-[10px] text-slate-400">Product A sales decline</p>
+                <p className="text-[10px] text-slate-400">GOAT Rockerz 550 decline</p>
               </button>
               <button
                 type="button"
@@ -145,7 +145,7 @@ export function DatasetUploadModal({
                 className="p-2 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 text-left text-xs transition-colors"
               >
                 <p className="font-bold text-emerald-400">Feb 2026 (Recovery)</p>
-                <p className="text-[10px] text-slate-400">+21.4% surge post-pricing</p>
+                <p className="text-[10px] text-slate-400">+37.5% revenue recovery</p>
               </button>
               <button
                 type="button"
@@ -153,8 +153,8 @@ export function DatasetUploadModal({
                 onClick={() => handlePresetSelect('march', 'March 2026')}
                 className="p-2 rounded-xl bg-slate-950 border border-slate-800 hover:border-slate-700 text-left text-xs transition-colors"
               >
-                <p className="font-bold text-cyan-400">Mar 2026 (Product B)</p>
-                <p className="text-[10px] text-slate-400">New strategic test</p>
+                <p className="font-bold text-cyan-400">Mar 2026 (Airdopes)</p>
+                <p className="text-[10px] text-slate-400">GOAT Airdopes 141 query</p>
               </button>
             </div>
           </div>

@@ -42,7 +42,7 @@ export function AIAnalystChat({
       id: 'welcome',
       role: 'assistant',
       content:
-        'Hello! I am your Hindsight-powered AI Business Analyst. I remember what your company tried, why it tried it, what happened afterward, and use those institutional experiences along with live web competitive intelligence when analyzing your future business decisions. Ask me anything about current metrics, past experiments, or competitive price impact.',
+        'Hello! I am GOAT’s Hindsight-powered AI Business Analyst. I remember what GOAT tried, why it tried it, what happened afterward, and use those institutional experiences along with live web competitive intelligence when analyzing your future business decisions. Ask me anything about GOAT’s sales data, past pricing outcomes, or competitive price impact.',
       timestamp: 'Just now',
     },
   ]);
@@ -59,20 +59,24 @@ export function AIAnalystChat({
 
   const suggestedQuestions = [
     {
-      label: 'Competitive Impact: -10% on Product B?',
-      query: 'What would happen competitively if we reduce Product B price by 10%?',
+      label: 'Competitive Impact: Rockerz 550 -10%?',
+      query: 'What happens if GOAT reduces the Rockerz 550 price by 10%?',
     },
     {
-      label: "Should we reduce Product B's price?",
-      query: "Should we reduce Product B's price? What did we learn from past pricing experiments?",
+      label: 'Price Cut: ₹1,499 to ₹1,349?',
+      query: 'Should GOAT reduce the price of the Rockerz 550 from ₹1,499 to ₹1,349?',
     },
     {
-      label: 'Why did Product A decline in Jan?',
-      query: 'Why did Product A sales decline in January, and what strategy should we adopt?',
+      label: 'Competitive Position Effect?',
+      query: "How would a 10% price reduction affect GOAT's competitive position?",
     },
     {
-      label: 'What did we learn from previous pricing?',
-      query: 'What did we learn from our previous pricing strategy experiment?',
+      label: 'Airdopes 141 Strategy vs Past Lessons?',
+      query: 'Should GOAT reduce the price of GOAT Airdopes 141? What did we learn from our previous Rockerz 550 pricing experiment?',
+    },
+    {
+      label: 'Hindsight Institutional Lessons?',
+      query: 'What institutional lessons does GOAT have in Hindsight regarding price elasticity and competitor discounting?',
     },
   ];
 

@@ -3,6 +3,7 @@ import { recallMemories, reflectOnMemories } from '@/lib/hindsight';
 import { generateBusinessAnalystInsight } from '@/lib/groq';
 import { getAllDatasets } from '@/lib/db';
 import { MemoryEvidenceItem } from '@/types/business';
+import { DEMO_COMPANY } from '@/config/company';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,10 +42,21 @@ ${Object.entries(kpis.productKPIs)
       // Detect product from query if not provided
       if (!detectedProduct) {
         for (const prod of Object.keys(kpis.productKPIs)) {
-          if (query.toLowerCase().includes(prod.toLowerCase())) {
+          const shortName = prod.replace(/^GOAT\s+/i, '').toLowerCase();
+          if (query.toLowerCase().includes(prod.toLowerCase()) || query.toLowerCase().includes(shortName)) {
             detectedProduct = prod;
             break;
           }
+        }
+      }
+    }
+
+    if (!detectedProduct) {
+      for (const prod of DEMO_COMPANY.products) {
+        const shortName = prod.name.replace(/^GOAT\s+/i, '').toLowerCase();
+        if (query.toLowerCase().includes(prod.name.toLowerCase()) || query.toLowerCase().includes(shortName)) {
+          detectedProduct = prod.name;
+          break;
         }
       }
     }
@@ -160,8 +172,12 @@ You are an institutional memory business decision intelligence agent.
 
     if (isCompetitiveQuery) {
       try {
-        const prod = detectedProduct || 'Product B';
-        const internalCurrentPrice = latestDataset?.kpis.productKPIs[prod]?.avgPrice || 1000;
+        const prod = detectedProduct || 'GOAT Rockerz 550';
+        const foundConfig = DEMO_COMPANY.products.find(
+          (p) => p.name.toLowerCase() === prod.toLowerCase() || prod.toLowerCase().includes(p.name.toLowerCase())
+        );
+        const fallbackPrice = foundConfig ? foundConfig.baselinePrice : 1499;
+        const internalCurrentPrice = latestDataset?.kpis?.productKPIs?.[prod]?.avgPrice || fallbackPrice;
         
         // Extract percentage or target price from query
         let proposed = Math.round(internalCurrentPrice * 0.9);

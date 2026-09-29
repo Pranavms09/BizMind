@@ -11,6 +11,7 @@ import {
   MemoryEvidenceItem,
   WebEvidence,
 } from '@/types/business';
+import { DEMO_COMPANY } from '@/config/company';
 
 export interface RunCompetitiveAnalysisParams {
   product?: string;
@@ -21,7 +22,7 @@ export interface RunCompetitiveAnalysisParams {
 }
 
 export async function runCompetitiveAnalysis({
-  product = 'Product B',
+  product = 'GOAT Rockerz 550',
   proposedPrice: rawProposedPrice,
   currentPrice: rawCurrentPrice,
   competitorNames = [],
@@ -36,28 +37,43 @@ export async function runCompetitiveAnalysis({
   const labels = Object.keys(allDatasets);
   const latestDataset = labels.length > 0 ? allDatasets[labels[labels.length - 1]] : null;
 
+  // Find product config if available
+  const productConfig = DEMO_COMPANY.products.find(
+    (p) => p.name.toLowerCase() === product.toLowerCase() || p.id === product.toLowerCase()
+  );
+  const defaultBasePrice = productConfig ? productConfig.baselinePrice : 1499;
+
   let resolvedCurrentPrice = rawCurrentPrice ? Number(rawCurrentPrice) : 0;
   let internalBusinessContext = 'Internal company sales data not available.';
 
   if (latestDataset) {
-    const pk = latestDataset.kpis.productKPIs[product];
+    // Try matching product name directly or partially
+    let matchedProdKey = Object.keys(latestDataset.kpis.productKPIs).find(
+      (k) => k.toLowerCase() === product.toLowerCase() || product.toLowerCase().includes(k.toLowerCase()) || k.toLowerCase().includes(product.toLowerCase())
+    );
+
+    const pk = matchedProdKey ? latestDataset.kpis.productKPIs[matchedProdKey] : null;
     if (pk) {
       if (!resolvedCurrentPrice) {
-        resolvedCurrentPrice = pk.avgPrice || 1000;
+        resolvedCurrentPrice = pk.avgPrice || defaultBasePrice;
       }
-      internalBusinessContext = `Product: ${product} (Latest Period: ${latestDataset.label})
+      internalBusinessContext = `Company: ${DEMO_COMPANY.name} (${DEMO_COMPANY.industry} - ${DEMO_COMPANY.primaryCategory})
+Product: ${pk.product} (Latest Period: ${latestDataset.label})
 Total Revenue: ₹${pk.totalRevenue.toLocaleString()} (${pk.revenueChangePercent !== undefined ? (pk.revenueChangePercent > 0 ? '+' : '') + pk.revenueChangePercent + '%' : 'N/A'} MoM)
 Units Sold: ${pk.totalQuantity.toLocaleString()} (${pk.quantityChangePercent !== undefined ? (pk.quantityChangePercent > 0 ? '+' : '') + pk.quantityChangePercent + '%' : 'N/A'} MoM)
 Current Average Unit Price: ₹${pk.avgPrice.toLocaleString()}`;
     } else {
-      if (!resolvedCurrentPrice) resolvedCurrentPrice = 1000;
-      internalBusinessContext = `Product: ${product} (No specific KPI row found in active dataset. Assuming baseline price ₹${resolvedCurrentPrice}).`;
+      if (!resolvedCurrentPrice) resolvedCurrentPrice = defaultBasePrice;
+      internalBusinessContext = `Company: ${DEMO_COMPANY.name}
+Product: ${product} (Baseline catalog price: ₹${resolvedCurrentPrice.toLocaleString()}).`;
     }
   } else {
-    if (!resolvedCurrentPrice) resolvedCurrentPrice = 1000;
+    if (!resolvedCurrentPrice) resolvedCurrentPrice = defaultBasePrice;
+    internalBusinessContext = `Company: ${DEMO_COMPANY.name}
+Product: ${product} (Baseline catalog price: ₹${resolvedCurrentPrice.toLocaleString()}).`;
   }
 
-  // Default proposed price if not supplied (e.g. 10% reduction)
+  // Default proposed price if not supplied (e.g. 10% reduction: 1499 -> 1349)
   const proposedPrice =
     rawProposedPrice !== undefined && rawProposedPrice !== null
       ? Number(rawProposedPrice)
@@ -69,30 +85,45 @@ Current Average Unit Price: ₹${pk.avgPrice.toLocaleString()}`;
   let rawMemoriesForGroq: MemoryEvidenceItem[] = [];
 
   try {
-    const recallQuery = `pricing decisions, price cuts, discounts, outcomes, and lessons for ${product} or similar products`;
+    const recallQuery = `GOAT pricing decisions, price cuts, discounts, outcomes, and lessons for ${product} or consumer audio products`;
     const recallRes = await recallMemories(recallQuery, { maxTokens: 2500 });
 
     rawMemoriesForGroq = (recallRes.results || []).map((m, i) => ({
       id: m.id || `mem-${i}`,
       text: m.text,
       type: 'historical_experience',
-      relevanceReason: 'Hindsight pricing precedent',
+      relevanceReason: 'GOAT Hindsight pricing precedent',
     }));
 
-    historicalEvidenceItems = rawMemoriesForGroq.map((m) => ({
-      memoryId: m.id,
-      text: m.text,
-      relevance: 'Retrieved from company institutional memory bank regarding prior pricing interventions.',
-    }));
+    if (rawMemoriesForGroq.length > 0) {
+      historicalEvidenceItems = rawMemoriesForGroq.map((m) => ({
+        memoryId: m.id,
+        text: m.text,
+        relevance: 'Retrieved from GOAT institutional memory bank regarding prior pricing interventions.',
+      }));
+    } else {
+      historicalEvidenceItems = [
+        {
+          text: 'No relevant historical GOAT decisions were found.',
+          relevance: 'Hindsight institutional memory check completed with 0 prior precedents.',
+        },
+      ];
+    }
   } catch (hindsightErr: any) {
     console.warn('[Competitive Service] Hindsight recall notice:', hindsightErr.message);
     hindsightAvailable = false;
+    historicalEvidenceItems = [
+      {
+        text: 'Hindsight memory retrieval is temporarily unavailable.',
+        relevance: 'Connection notice.',
+      },
+    ];
   }
 
   // 3. Conduct Live Web Research on Competitors using Groq browser search
   const researchResult = await conductCompetitiveWebResearch({
     product,
-    category: 'enterprise software and commercial tech products',
+    category: DEMO_COMPANY.primaryCategory,
     targetCompetitors: Array.isArray(competitorNames) ? competitorNames : [],
     currentPrice: resolvedCurrentPrice,
   });
@@ -152,8 +183,8 @@ Current Average Unit Price: ₹${pk.avgPrice.toLocaleString()}`;
       available: false,
       summary: synthesis.financialImpactSummary,
       assumptions: [
-        'Demand response is subject to buyer elasticity and competitive counter-offers.',
-        'Gross margins must be verified against current unit cost before executing changes.',
+        'Demand response is subject to buyer price elasticity and competitor promotional counter-offers.',
+        'Gross margins must be verified against current unit BOM cost before committing to permanent pricing.',
       ],
       estimatedRevenueText:
         'Competitive price position can be evaluated, but revenue impact cannot be reliably estimated without a demand-response assumption or sufficient historical evidence.',
@@ -162,7 +193,7 @@ Current Average Unit Price: ₹${pk.avgPrice.toLocaleString()}`;
     keyTakeaways: synthesis.keyTakeaways,
     evidenceSummary: {
       businessFacts: latestDataset ? 4 : 1,
-      hindsightMemories: historicalEvidenceItems.length,
+      hindsightMemories: rawMemoriesForGroq.length,
       webSources: webEvidenceList.length,
       assumptions: 3,
     },

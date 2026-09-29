@@ -97,29 +97,29 @@ export default function DashboardPage() {
         setKpis(janData.kpis);
         setDatasetLabel(janData.label);
         setSituations(janData.situations || []);
-        setActiveProduct('Product A');
+        setActiveProduct('GOAT Rockerz 550');
         setDemoStep(1);
       } else if (stepNum === 2) {
-        // Step 2: Trigger AI analysis on Product A decline
+        // Step 2: Trigger AI analysis on GOAT Rockerz 550 decline
         setDemoStep(2);
         setChatPrompt({
           prompt:
-            'Product A sales dropped sharply in January. What is happening, and what strategy should we consider?',
-          product: 'Product A',
+            'GOAT Rockerz 550 sales dropped in January due to aggressive competitor discounts. What is happening, and what strategy should we consider?',
+          product: 'GOAT Rockerz 550',
         });
       } else if (stepNum === 3) {
         // Step 3: Open Decision Modal to record 10% price reduction
         setDemoStep(3);
         setSelectedSituation(
-          situations.find((s) => s.product === 'Product A') || {
-            id: 'sit-prod-a-jan',
+          situations.find((s) => s.product === 'GOAT Rockerz 550') || {
+            id: 'sit-goat-rockerz-jan',
             date: '2026-01-15',
             metric: 'revenue',
-            currentValue: 280000,
-            previousValue: 370000,
+            currentValue: 419720,
+            previousValue: 554630,
             changePercent: -24.3,
-            product: 'Product A',
-            detectedIssue: 'Product A revenue declined 24.3% in January 2026.',
+            product: 'GOAT Rockerz 550',
+            detectedIssue: 'GOAT Rockerz 550 revenue declined 24.3% in January 2026.',
             severity: 'high',
           }
         );
@@ -152,23 +152,23 @@ export default function DashboardPage() {
           setOutcomeCandidate({
             decision: {
               id: 'dec-step-3',
-              action: 'Reduce Product A price by 10%',
-              reason: 'Competitor pricing pressure',
-              expectedOutcome: '+15% unit sales',
+              action: 'Reduce GOAT Rockerz 550 price by 10% (from ₹1,499 to ₹1,349)',
+              reason: 'Counter competitor discounting by boAt and Noise',
+              expectedOutcome: '+15% unit sales growth',
               expectedGrowthPercent: 15,
             },
             currentPeriod: 'February 2026',
-            product: 'Product A',
+            product: 'GOAT Rockerz 550',
             metric: 'revenue',
-            previousValue: 280000,
-            actualValue: 385200,
+            previousValue: 419720,
+            actualValue: 577372,
             actualChangePercent: 37.6,
             expectedChangePercent: 15,
           });
         }
         setIsOutcomeModalOpen(true);
       } else if (stepNum === 6) {
-        // Step 6: Ingest March data (Product B) and ask the key question: "Should we reduce Product B's price?"
+        // Step 6: Ingest March data (GOAT Airdopes 141) and ask: "Should GOAT reduce price?"
         const marRes = await fetch('/api/datasets', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -182,18 +182,18 @@ export default function DashboardPage() {
         setKpis(marData.kpis);
         setDatasetLabel(marData.label);
         setSituations(marData.situations || []);
-        setActiveProduct('Product B');
+        setActiveProduct('GOAT Airdopes 141');
         setDemoStep(6);
 
         setChatPrompt({
           prompt:
-            "Should we reduce Product B's price? What did we learn from our previous pricing experiments?",
-          product: 'Product B',
+            "Should GOAT reduce the price of GOAT Airdopes 141? What did we learn from our previous pricing experiments on GOAT Rockerz 550?",
+          product: 'GOAT Airdopes 141',
         });
       } else if (stepNum === 7) {
-        // Step 7: Competitive Impact Analysis on Product B with proposed 10% price cut
+        // Step 7: Competitive Impact Analysis on GOAT Rockerz 550 (from ₹1,499 to ₹1,349, -10%)
         setDemoStep(7);
-        setActiveProduct('Product B');
+        setActiveProduct('GOAT Rockerz 550');
         setIsCompetitiveModalOpen(true);
         setCompetitiveLoading(true);
         try {
@@ -201,8 +201,9 @@ export default function DashboardPage() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              product: 'Product B',
-              proposedPrice: 900,
+              product: 'GOAT Rockerz 550',
+              currentPrice: 1499,
+              proposedPrice: 1349,
             }),
           });
           const data = await res.json();

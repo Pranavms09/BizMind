@@ -37,7 +37,7 @@ export function OutcomeModal({
 
   const defaultLesson = isBetter
     ? `The ${candidate?.decision.action || 'pricing strategy'} was highly effective for ${
-        candidate?.product || 'Product A'
+        candidate?.product || 'GOAT Rockerz 550'
       }. Recovered sales by ${actualChange > 0 ? '+' : ''}${actualChange}% without damaging gross margins.`
     : `The ${candidate?.decision.action || 'strategy'} did not reach the expected target of ${expectedChange}%. Re-evaluate customer willingness to pay and market elasticity.`;
 

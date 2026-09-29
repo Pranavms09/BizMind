@@ -17,7 +17,7 @@ export function DecisionModal({
   situation,
   onDecisionCreated,
 }: DecisionModalProps) {
-  const [product, setProduct] = useState(situation?.product || 'Product A');
+  const [product, setProduct] = useState(situation?.product || 'GOAT Rockerz 550');
   const [action, setAction] = useState('Reduce price by 10%');
   const [reason, setReason] = useState('Competitor pricing pressure and declining January sales');
   const [expectedOutcome, setExpectedOutcome] = useState('Increase unit sales volume by 15%');

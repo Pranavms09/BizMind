@@ -5,6 +5,7 @@
  */
 
 export * from './competitive';
+export * from '@/config/company';
 
 export interface SalesRecord {
   date: string; // YYYY-MM-DD

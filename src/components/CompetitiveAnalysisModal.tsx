@@ -23,6 +23,7 @@ import {
   WebEvidence,
 } from '@/types/competitive';
 import { formatINR } from '@/lib/analytics';
+import { DEMO_COMPANY } from '@/config/company';
 
 interface CompetitiveAnalysisModalProps {
   isOpen: boolean;
@@ -55,7 +56,7 @@ export function CompetitiveAnalysisModal({
                 <span>Competitive Impact Analysis</span>
                 {analysis && (
                   <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-mono">
-                    {analysis.proposedChange.product}
+                    {DEMO_COMPANY.name}: {analysis.proposedChange.product}
                   </span>
                 )}
               </h2>

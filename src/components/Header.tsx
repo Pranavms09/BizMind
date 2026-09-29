@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { Brain, Database, Sparkles, UploadCloud, RotateCcw } from 'lucide-react';
 
+import { DEMO_COMPANY } from '@/config/company';
+
 interface HeaderProps {
   onOpenUpload: () => void;
   onResetDemo: () => void;
@@ -49,15 +51,16 @@ export function Header({ onOpenUpload, onResetDemo }: HeaderProps) {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold tracking-tight text-white">
-                AI Business Analyst
+              <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                <span>{DEMO_COMPANY.name}</span>
+                <span className="text-slate-400 font-normal text-base">| AI Business Analyst</span>
               </h1>
               <span className="text-[11px] font-semibold tracking-wide uppercase px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center gap-1">
                 <Sparkles className="w-3 h-3" /> Hindsight Powered
               </span>
             </div>
             <p className="text-xs text-slate-400 hidden sm:block">
-              Institutional Decision Intelligence: What was tried, why it was tried, what happened afterward.
+              {DEMO_COMPANY.industry} &bull; {DEMO_COMPANY.primaryCategory} ({DEMO_COMPANY.market}) &bull; Institutional Memory: What was tried, why, and what happened.
             </p>
           </div>
         </div>

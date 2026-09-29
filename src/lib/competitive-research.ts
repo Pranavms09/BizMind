@@ -1,5 +1,6 @@
 import { Groq } from 'groq-sdk';
 import { WebEvidence } from '@/types/competitive';
+import { DEMO_COMPANY } from '@/config/company';
 
 let groqClientInstance: Groq | null = null;
 
@@ -32,10 +33,12 @@ export interface ResearchCompetitorResult {
 /**
  * Conduct live competitive web research using Groq's openai/gpt-oss-120b with browser_search tool.
  * Extracts observed competitor prices, promotions, features, and source citations.
+ * Fictional company: GOAT.
+ * Real competitors in India consumer electronics / audio: boAt, Noise, Boult, JBL, Sony, Realme.
  */
 export async function conductCompetitiveWebResearch({
   product,
-  category = 'commercial enterprise products',
+  category = DEMO_COMPANY.primaryCategory,
   targetCompetitors = [],
   currentPrice,
 }: ResearchCompetitorParams): Promise<ResearchCompetitorResult> {
@@ -46,41 +49,41 @@ export async function conductCompetitiveWebResearch({
   const competitorsPrompt =
     targetCompetitors.length > 0
       ? `Specific competitors to research: ${targetCompetitors.join(', ')}.`
-      : `Identify 3 realistic, major market competitors for ${product} in the ${category} category in India/global market.`;
+      : `Research real public competitors in India's ${category} market (such as boAt, Noise, Boult, JBL, Sony, or Realme) that compete against a product like "${product}".`;
 
   const systemPrompt = `You are a specialized competitive intelligence research agent.
-You utilize browser search to discover verified, publicly observable competitor retail prices, discounts, and promotions.
+Our company is "${DEMO_COMPANY.name}" (${DEMO_COMPANY.industry} - ${DEMO_COMPANY.primaryCategory} in ${DEMO_COMPANY.market}).
+GOAT is our fictional demo company. You utilize browser search to discover verified, publicly observable competitor retail prices, discounts, and promotions from real brands.
 
 RULES:
-1. Search the web for current pricing of competing products.
+1. Search the web for current retail pricing of competing products in India (INR / ₹).
 2. Return factual, public information with verifiable source URLs.
 3. For every competitor found, provide:
-   - Competitor / Brand Name
-   - Exact observed price in INR (₹) or local currency (numeric value)
+   - Competitor / Brand Name (e.g. boAt, Noise, Boult, JBL, Sony)
+   - Exact observed price in INR (₹) (numeric value)
    - Features / Package Tier / Promotional condition
    - Source URL from which this price was retrieved.
-4. If a competitor has multiple tiers, select the closest equivalent tier.
-5. End your response with a clear JSON block between \`\`\`json and \`\`\` in this exact format:
+4. End your response with a clear JSON block between \`\`\`json and \`\`\` in this exact format:
 {
   "competitors": [
     {
-      "name": "Competitor Name",
-      "price": 950,
+      "name": "boAt",
+      "price": 1399,
       "currency": "INR",
-      "tier": "Standard / Pro",
-      "claim": "Price is ₹950 per unit on Amazon/Official Store",
-      "sourceUrl": "https://example.com/product",
-      "sourceTitle": "Official Product Page",
+      "tier": "Wireless Headphones",
+      "claim": "boAt Rockerz 450 listed at ₹1,399 on official store / Amazon India",
+      "sourceUrl": "https://www.boat-lifestyle.com",
+      "sourceTitle": "boAt Lifestyle Official Store",
       "evidenceType": "pricing"
     }
   ]
 }`;
 
   const userPrompt = `Conduct competitive research for our product: "${product}".
-${currentPrice ? `Our current price is approximately ₹${currentPrice.toLocaleString()}.` : ''}
+${currentPrice ? `GOAT's current price is ₹${currentPrice.toLocaleString()}.` : ''}
 ${competitorsPrompt}
 
-Search for their current live retail pricing, active discounts, and promotional offers. Include URLs.`;
+Search for their current live retail pricing, active discounts, and promotional offers. Include verifiable source URLs.`;
 
   try {
     const res = await groq.chat.completions.create({
@@ -151,9 +154,8 @@ Search for their current live retail pricing, active discounts, and promotional 
       }
     }
 
-    // If JSON parsing was sparse, extract from markdown tables or text patterns
+    // If JSON parsing was sparse, extract from markdown patterns
     if (evidenceList.length === 0) {
-      // Regex pattern to extract competitor names and INR prices: e.g. "Zoho: ₹1,300" or "| Zoho | ₹1,300 |"
       const lines = rawContent.split('\n');
       for (const line of lines) {
         const priceMatch = line.match(/(?:₹|Rs\.?|INR)\s*([0-9,]+)/i);
@@ -161,7 +163,6 @@ Search for their current live retail pricing, active discounts, and promotional 
           const rawNum = priceMatch[1].replace(/,/g, '');
           const price = parseFloat(rawNum);
           if (!isNaN(price) && price > 50 && price < 500000) {
-            // Find candidate name in line
             const cleanLine = line.replace(/[|*#`]/g, '').trim();
             const candidateName = cleanLine.split(/[:–-]/)[0]?.trim().slice(0, 30) || 'Market Competitor';
 
@@ -191,13 +192,14 @@ Search for their current live retail pricing, active discounts, and promotional 
       webSearchAvailable: true,
     };
   } catch (err: any) {
-    console.warn('[Competitive Research] Live web search encountered error:', err.message);
+    console.warn('[Competitive Research] Live web search notice:', err.message);
     return {
       evidence: [],
       observedPrices: {},
-      searchSummary: 'Live competitive intelligence is unavailable. The analysis uses internal business data and historical memory only.',
+      searchSummary:
+        'Live competitive intelligence is unavailable. The analysis uses internal GOAT business data and historical memory only.',
       webSearchAvailable: false,
-      searchNotice: `Web search notice: ${err.message}`,
+      searchNotice: `Live competitive intelligence is unavailable (${err.message}).`,
     };
   }
 }

@@ -5,6 +5,7 @@ import {
   CompetitiveScenario,
   WebEvidence,
 } from '@/types/competitive';
+import { DEMO_COMPANY } from '@/config/company';
 
 let groqClientInstance: Groq | null = null;
 
@@ -62,7 +63,8 @@ export async function generateBusinessAnalystInsight({
           .join('\n')
       : 'No prior historical decisions or precedents found in Hindsight bank for this query.';
 
-  const systemPrompt = `You are the Lead AI Business Decision Analyst for an enterprise corporation.
+  const systemPrompt = `You are the Lead AI Business Decision Analyst for ${DEMO_COMPANY.fullName} ("${DEMO_COMPANY.name}").
+${DEMO_COMPANY.name} is a fictional consumer-electronics company in India specializing in ${DEMO_COMPANY.primaryCategory} (e.g., GOAT Rockerz 550, GOAT Airdopes 141, GOAT Nirvana 751, GOAT Stone 350).
 You possess institutional memory powered by Hindsight and deliver strategic decision intelligence.
 
 CORE OPERATIONAL PRINCIPLES:
@@ -203,8 +205,10 @@ Position: ${s.pricePosition}`
     )
     .join('\n\n');
 
-  const systemPrompt = `You are a Senior Corporate Strategy & Competitive Intelligence Analyst.
-You deliver auditable, rigorous competitive impact assessments.
+  const systemPrompt = `You are a Senior Corporate Strategy & Competitive Intelligence Analyst for ${DEMO_COMPANY.fullName} ("${DEMO_COMPANY.name}").
+GOAT is our fictional consumer-electronics company in India specializing in ${DEMO_COMPANY.primaryCategory}.
+Real competitors in India's consumer audio market include boAt, Noise, Boult, JBL, Sony, and Realme.
+You deliver auditable, rigorous competitive impact assessments combining GOAT's internal business data, Hindsight memory, live web competitive research, and deterministic scenario models.
 
 MANDATORY EPISTEMIC PRINCIPLES:
 1. NEVER declare what competitors WILL do. Always frame future actions as: "Scenario: If competitors respond by..."
@@ -318,7 +322,7 @@ Deliver your structured JSON assessment now.`;
     currentPositionSummary: `Currently ${calculations.currentPositionText} across observed market competitors.`,
     proposedPositionSummary: `At ₹${calculations.proposedPrice.toLocaleString()}, standing improves to ${calculations.proposedPositionText}.`,
     historicalRelevanceStatement:
-      'Hindsight memories document prior pricing experiments on Product A, but Product B operates with distinct pricing fundamentals and requires cautious intervention.',
+      'Hindsight memories document prior pricing experiments on GOAT Rockerz 550, but distinct audio product tiers have different demand elasticities and require tailored strategic execution.',
     financialImpactSummary:
       'Competitive price position can be evaluated, but revenue impact cannot be reliably estimated without a demand-response assumption or sufficient historical evidence.',
     risks: [

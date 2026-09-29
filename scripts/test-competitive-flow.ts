@@ -6,28 +6,29 @@ import { conductCompetitiveWebResearch } from '../src/lib/competitive-research';
 import { generateCompetitiveSynthesis } from '../src/lib/groq';
 import { recallMemories } from '../src/lib/hindsight';
 import { MemoryEvidenceItem } from '../src/types/business';
+import { DEMO_COMPANY } from '../src/config/company';
 
 async function testCompetitiveFlow() {
   console.log('========================================================');
-  console.log('TESTING COMPETITIVE IMPACT ANALYSIS PIPELINE');
+  console.log(`TESTING COMPETITIVE IMPACT ANALYSIS PIPELINE (${DEMO_COMPANY.name})`);
   console.log('========================================================\n');
 
-  const product = 'Product B';
-  const currentPrice = 1000;
-  const proposedPrice = 900;
+  const product = 'GOAT Rockerz 550';
+  const currentPrice = 1499;
+  const proposedPrice = 1349;
 
   console.log(`[Step 1] Proposed Change: ${product} from ₹${currentPrice} to ₹${proposedPrice} (-10.0%)`);
 
   // Step 2: Hindsight Recall
-  console.log('\n[Step 2] Recalling historical business experiences from Hindsight bank "business-analyst"...');
+  console.log('\n[Step 2] Recalling historical business experiences from Hindsight bank...');
   let recalledMemories: MemoryEvidenceItem[] = [];
   try {
-    const recallRes = await recallMemories('pricing decisions, discounts, outcomes, and lessons for Product B or similar products');
+    const recallRes = await recallMemories(`GOAT pricing decisions, discounts, outcomes, and lessons for ${product} or wireless audio`);
     recalledMemories = (recallRes.results || []).map((m, i) => ({
       id: m.id || `m-${i}`,
       text: m.text,
       type: 'historical_experience',
-      relevanceReason: 'Hindsight pricing precedent',
+      relevanceReason: 'GOAT Hindsight pricing precedent',
     }));
     console.log(`✓ Recalled ${recalledMemories.length} historical experiences from Hindsight.`);
   } catch (err: any) {
@@ -38,7 +39,7 @@ async function testCompetitiveFlow() {
   console.log('\n[Step 3] Conducting competitive web research using Groq browser search...');
   const research = await conductCompetitiveWebResearch({
     product,
-    category: 'commercial enterprise software and hardware',
+    category: DEMO_COMPANY.primaryCategory,
     currentPrice,
   });
   console.log(`✓ Web research completed (Available: ${research.webSearchAvailable}).`);
@@ -50,11 +51,11 @@ async function testCompetitiveFlow() {
 
   // Step 4: Deterministic Calculations
   console.log('\n[Step 4] Running deterministic competitive calculations...');
-  // If web search returned 0 prices in test environment, supply observed baseline fixture
+  // Use observed or fixture if web rate limit reached
   const competitorPrices =
     Object.keys(research.observedPrices).length > 0
       ? research.observedPrices
-      : { 'Competitor A': 950, 'Competitor B': 920, 'Competitor C': 1050 };
+      : { boAt: 1399, Noise: 1599, Boult: 1299 };
 
   const calculations = calculateCompetitiveMetrics(currentPrice, proposedPrice, competitorPrices);
   console.log(`✓ Absolute change: ₹${calculations.absoluteChange} (${calculations.percentageChange}%)`);
@@ -78,7 +79,8 @@ async function testCompetitiveFlow() {
     webEvidence: research.evidence,
     historicalMemories: recalledMemories,
     scenarios,
-    internalBusinessContext: `Product: Product B (Current Revenue ₹3,07,200, Units: 256, Avg Price: ₹1,000)`,
+    internalBusinessContext: `Company: ${DEMO_COMPANY.name}
+Product: ${product} (Current baseline price: ₹${currentPrice.toLocaleString()}, Proposed: ₹${proposedPrice.toLocaleString()})`,
   });
 
   console.log('✓ Strategic Summary:\n', synthesis.strategicSummary);
@@ -89,7 +91,7 @@ async function testCompetitiveFlow() {
   synthesis.keyTakeaways.forEach((t) => console.log(`  ✓ ${t}`));
 
   console.log('\n========================================================');
-  console.log('✓ ALL COMPETITIVE IMPACT ANALYSIS PIPELINE STAGES VERIFIED');
+  console.log(`✓ ALL COMPETITIVE IMPACT ANALYSIS PIPELINE STAGES VERIFIED (${DEMO_COMPANY.name})`);
   console.log('========================================================\n');
 }
 
